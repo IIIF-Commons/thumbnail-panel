@@ -1,7 +1,6 @@
 {
   "sandboxes": [
-    "new",
-    "simple-parser-2xxljf"
+    "vanilla"
   ],
   "buildCommand": "prepublishOnly",
   "node": "16"
