@@ -1,9 +1,27 @@
 {
   "name": "@iiif/thumbnail-panel",
   "version": "1.0.0",
-  "main": "index.js",
   "repository": "git@github.com:IIIF-Commons/thumbnail-panel.git",
   "license": "MIT",
+  "main": "dist/bundle/cjs/index.js",
+  "module": "dist/bundle/esm/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "require": "./dist/bundle/cjs/index.js",
+      "import": "./dist/bundle/esm/index.mjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/index.d.ts"
+      ]
+    }
+  },
   "scripts": {
     "start": "vite",
     "build": "node ./scripts/build.mjs",
