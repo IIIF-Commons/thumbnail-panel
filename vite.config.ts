@@ -1,7 +1,8 @@
 import { defineConfig } from 'vitest/config';
+import { ecsstatic } from '@acab/ecsstatic/vite';
 
 export default defineConfig({
-  plugins: [],
+  plugins: [ecsstatic()],
   test: {
     include: ['**/*.{test,tests,spec}.{js,mjs,cjs,ts,mts,cts}'],
     environment: 'happy-dom',
