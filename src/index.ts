@@ -1,14 +1,11 @@
 import { css } from '@acab/ecsstatic';
 
-console.log('Thumbnail panel.');
-
-export const test = 'thumbnail panel'
-
-
-export const exampleClassName = css`
+export const styledThumbnail = css`
   background: red;
-  
-  @media (min-width: 200px) {
+  color: white;
+  padding: 1rem;
+
+  @media (min-width: 500px) {
     background: blue;
   }
 `;
