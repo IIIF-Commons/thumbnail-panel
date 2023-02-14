@@ -52,6 +52,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@iiif/parser": "^1.1.2"
+    "@iiif/parser": "^1.1.2",
+    "@iiif/vault-helpers": "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers"
   }
 }
