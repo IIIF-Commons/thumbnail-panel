@@ -1,10 +1,9 @@
 import { defineConfig } from './base-config.mjs';
 import { build } from 'vite';
 import chalk from 'chalk';
-import { execa } from "execa";
+import { execa } from 'execa';
 
 (async () => {
-
   const DIST = 'dist';
 
   // Main UMD build.
