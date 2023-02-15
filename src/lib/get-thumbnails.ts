@@ -8,27 +8,24 @@ export function getThumbnails(items: Canvas[] | CollectionItems[] = []) {
       return;
     }
     // Use a helper here 😁
+    // @ts-ignore
     return item.items[0].items[0].body.id;
   });
   return uris;
 }
 
-// @ts-ignore
-export function helperGetThumbnails(iiifResource) {
+export function helperGetThumbnails(iiifResource: Canvas | CollectionItems) {
   const helper = createThumbnailHelper();
 
-  helper
-    .getBestThumbnailAtSize(
-      iiifResource,
-      {
-        width: 200,
-        height: 200,
-        returnAllOptions: true,
-        allowUnsafe: true,
-      },
-      false
-    )
-    .then((r) => {
-      console.log('r', r);
-    });
+  return helper.getBestThumbnailAtSize(
+    // @ts-ignore This type needs to be updated in the PR.
+    iiifResource,
+    {
+      width: 200,
+      height: 200,
+      returnAllOptions: true,
+      allowUnsafe: true,
+    },
+    false
+  );
 }
