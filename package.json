@@ -52,7 +52,8 @@
     "access": "public"
   },
   "dependencies": {
+    "@atlas-viewer/iiif-image-api": "^2.1.1",
     "@iiif/parser": "^1.1.2",
-    "@iiif/vault-helpers": "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers"
+    "@iiif/vault-helpers": "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/8cc61732/@iiif/vault-helpers"
   }
 }

@@ -1,8 +1,9 @@
 import { Collection, Manifest, SpecificationBehaviors, ViewingDirection } from '@iiif/presentation-3';
 import { convertPresentation2 } from '@iiif/parser/presentation-2';
 import { fetchManifest } from './lib/fetch-manifest';
-import { getThumbnails } from './lib/get-thumbnails';
+import { getThumbnails, helperGetThumbnails } from './lib/get-thumbnails';
 import { writeToTheDom } from './lib/write-to-dom';
+import { fetch } from '@iiif/vault-helpers/fetch';
 
 interface Config {
   iiif?: {
@@ -20,10 +21,12 @@ const defaultIIIFConfig = {
 };
 
 async function init(resourceId: string, config?: Config) {
-  if (!resourceId) return;
+  if (!resourceId) {
+    return;
+  }
 
   // Get manifest and convert to Pres 3
-  const resourceResponse = await fetchManifest(resourceId);
+  const resourceResponse = await fetch(resourceId);
   const pres3: Manifest | Collection = convertPresentation2(resourceResponse);
   console.log('pres3', pres3);
 
@@ -32,11 +35,15 @@ async function init(resourceId: string, config?: Config) {
   const viewingDirection = pres3['viewingDirection'] || defaultIIIFConfig.viewingDirection;
 
   // Get thumbnails from helper
-  const thumbnails = getThumbnails(pres3.items);
+  const thumbnails = await Promise.all(pres3.items.map((canvas) => helperGetThumbnails(canvas)));
   console.log('thumbnails', thumbnails);
 
   // Write to the DOM
-  thumbnails.forEach((thumb) => writeToTheDom(thumb));
+  thumbnails.forEach((thumb) => {
+    if (thumb.best) {
+      writeToTheDom(thumb.best.id);
+    }
+  });
 }
 
 init(bookFixture);
