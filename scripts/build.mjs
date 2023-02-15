@@ -1,10 +1,9 @@
 import { defineConfig } from './base-config.mjs';
 import { build } from 'vite';
 import chalk from 'chalk';
-import { execa } from "execa";
+import { execa } from 'execa';
 
 (async () => {
-
   const DIST = 'dist';
 
   // Main UMD build.
@@ -21,7 +20,7 @@ import { execa } from "execa";
   buildMsg('@iiif/thumbnail-panel');
   await build(
     defineConfig({
-      entry: `src/index.ts`,
+      entry: `src/index.tsx`,
       name: 'index',
       outDir: `${DIST}/bundle`,
     })
@@ -30,7 +29,7 @@ import { execa } from "execa";
   buildMsg('Types');
 
   listItem('@iiif/thumbnail-panel');
-  await execa('./node_modules/.bin/dts-bundle-generator', [`--out-file=${DIST}/index.d.ts`, './src/index.ts']);
+  await execa('./node_modules/.bin/dts-bundle-generator', [`--out-file=${DIST}/index.d.ts`, './src/index.tsx']);
 
   function buildMsg(name) {
     console.log(chalk.grey(`\n\nBuilding ${chalk.blue(name)}\n`));
