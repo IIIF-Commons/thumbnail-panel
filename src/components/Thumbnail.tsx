@@ -6,5 +6,5 @@ interface ThumbnailProps {
 }
 
 export const Thumbnail: React.FC<ThumbnailProps> = ({ item }) => {
-  return <div>{item.id}</div>;
+  return <div>test{item.id}</div>;
 };
