@@ -28,6 +28,8 @@
     "curly": "warn",
     "no-throw-literal": "warn",
     "semi": "off"
+    // "sort-keys": "error",
+    // "sort-imports": "error"
   },
   "ignorePatterns": [
     "**/*.d.ts"

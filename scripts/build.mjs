@@ -1,5 +1,5 @@
-import { defineConfig } from './base-config.mjs';
 import { build } from 'vite';
+import { defineConfig } from './base-config.mjs';
 import chalk from 'chalk';
 import { execa } from 'execa';
 
@@ -11,9 +11,9 @@ import { execa } from 'execa';
   await build(
     defineConfig({
       entry: `src/index.umd.ts`,
+      globalName: 'IIIFThumbnailPanel',
       name: 'index',
       outDir: DIST,
-      globalName: 'IIIFThumbnailPanel',
     })
   );
 

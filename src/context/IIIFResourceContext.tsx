@@ -14,8 +14,19 @@ export function useResource() {
   return useContext(ReactContext);
 }
 
-export function IIIFContentProvider(props: { resource: string | any; children: ReactNode }) {
+export function IIIFContentProvider(props: {
+  resource: string | any;
+  children: ReactNode;
+  overrides?: Partial<Presentation3.Manifest | Presentation3.Collection>;
+  onLoad?: (resource?: Presentation3.Manifest | Presentation3.Collection) => void;
+}) {
   const [resource, setResource] = useState<Presentation3.Manifest | Presentation3.Collection>();
+  const mergedResource = useMemo(() => {
+    if (!props.overrides || !resource) {
+      return resource;
+    }
+    return Object.assign({}, resource, props.overrides || {});
+  }, [resource, ...Object.values(props.overrides || {})]);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -27,7 +38,12 @@ export function IIIFContentProvider(props: { resource: string | any; children: R
       const controller = new AbortController();
 
       fetch(props.resource, { signal: controller.signal })
-        .then((json) => setResource(json as any))
+        .then((json) => {
+          setResource(json as any);
+          if (props.onLoad) {
+            props.onLoad(json);
+          }
+        })
         .catch((e) => setError(e));
 
       return () => {
@@ -35,12 +51,15 @@ export function IIIFContentProvider(props: { resource: string | any; children: R
       };
     } else {
       setResource(props.resource);
+      if (props.onLoad) {
+        props.onLoad(props.resource);
+      }
     }
   }, [props.resource]);
 
   const value = useMemo(() => {
-    return { resource, error, isLoaded: !!resource };
-  }, [resource, error]);
+    return { resource: mergedResource, error, isLoaded: !!resource };
+  }, [mergedResource, error]);
 
   return <ReactContext.Provider value={value}>{props.children}</ReactContext.Provider>;
 }

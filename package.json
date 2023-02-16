@@ -55,7 +55,10 @@
     "access": "public"
   },
   "dependencies": {
+    "@atlas-viewer/iiif-image-api": "^2.1.1",
     "@iiif/vault-helpers": "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/8cc61732/@iiif/vault-helpers",
+    "@iiif/vocabulary": "^1.0.26",
+    "leva": "^0.9.34",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }
