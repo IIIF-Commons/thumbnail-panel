@@ -9,17 +9,17 @@ interface ThumbnailProps {
 
 export const Thumbnail: React.FC<ThumbnailProps> = ({ item }) => {
   const helper = createThumbnailHelper(); // no vault
-  const [thumb, setThumb] = useState();
+  const [thumb, setThumb] = useState<any>();
   const { resource } = useResource();
-  const thumbnailSize = resource?.thumbnailSize || 200;
+  const thumbnailSize = (resource as any)?.thumbnailSize || 200;
 
   useEffect(() => {
     async function getData() {
-      const response = await helper.getBestThumbnailAtSize(item, {
+      const response = await helper.getBestThumbnailAtSize(item as any, {
         width: thumbnailSize,
         height: thumbnailSize,
       });
-      setThumb(response.best);
+      setThumb(response.best as any);
     }
 
     item && getData();

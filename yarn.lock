@@ -392,9 +392,9 @@
   dependencies:
     "@types/geojson" "^7946.0.7"
 
-"@iiif/vault-helpers@https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers":
+"@iiif/vault-helpers@https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/8cc61732/@iiif/vault-helpers":
   version "0.9.11"
-  resolved "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers#a777304ab0b947269225181fb770f183284b8b0e"
+  resolved "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/8cc61732/@iiif/vault-helpers#d99d2ce9a2e6c8c12e3f0e8c22e0eb746db161a2"
   dependencies:
     "@iiif/presentation-2" "1.x"
     "@iiif/presentation-3" "1.x"
