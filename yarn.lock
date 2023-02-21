@@ -392,19 +392,6 @@
   dependencies:
     "@types/geojson" "^7946.0.7"
 
-"@iiif/vault-helpers@https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/8cc61732/@iiif/vault-helpers":
-  version "0.9.11"
-  resolved "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/8cc61732/@iiif/vault-helpers"
-  integrity sha512-FCz7HzWyjP/on234MY9AGFRRuCzjL7Gd6bTv6+brdAN1L1TMplFAA+O79w8crtWV5YiPZ7bd/0cw3YZh2JAjLA==
-  dependencies:
-    "@iiif/presentation-2" "1.x"
-    "@iiif/presentation-3" "1.x"
-  optionalDependencies:
-    abs-svg-path "^0.1.0"
-    parse-svg-path "^0.1.0"
-    react-i18next "^11.18.0"
-    svg-arc-to-cubic-bezier "^3.2.0"
-
 "@iiif/vault-helpers@https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers":
   version "0.9.11"
   resolved "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers#a777304ab0b947269225181fb770f183284b8b0e"
