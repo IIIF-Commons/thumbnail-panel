@@ -405,6 +405,18 @@
     react-i18next "^11.18.0"
     svg-arc-to-cubic-bezier "^3.2.0"
 
+"@iiif/vault-helpers@https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers":
+  version "0.9.11"
+  resolved "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers#a777304ab0b947269225181fb770f183284b8b0e"
+  dependencies:
+    "@iiif/presentation-2" "1.x"
+    "@iiif/presentation-3" "1.x"
+  optionalDependencies:
+    abs-svg-path "^0.1.0"
+    parse-svg-path "^0.1.0"
+    react-i18next "^11.18.0"
+    svg-arc-to-cubic-bezier "^3.2.0"
+
 "@iiif/vocabulary@^1.0.26":
   version "1.0.26"
   resolved "https://registry.yarnpkg.com/@iiif/vocabulary/-/vocabulary-1.0.26.tgz#557fab623100ca860daeddf6e4de46a8f94aaf86"
