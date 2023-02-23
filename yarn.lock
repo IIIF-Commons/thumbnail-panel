@@ -394,8 +394,7 @@
 
 "@iiif/vault-helpers@https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/8cc61732/@iiif/vault-helpers":
   version "0.9.11"
-  resolved "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/8cc61732/@iiif/vault-helpers"
-  integrity sha512-FCz7HzWyjP/on234MY9AGFRRuCzjL7Gd6bTv6+brdAN1L1TMplFAA+O79w8crtWV5YiPZ7bd/0cw3YZh2JAjLA==
+  resolved "https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/8cc61732/@iiif/vault-helpers#d99d2ce9a2e6c8c12e3f0e8c22e0eb746db161a2"
   dependencies:
     "@iiif/presentation-2" "1.x"
     "@iiif/presentation-3" "1.x"

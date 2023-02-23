@@ -29,6 +29,9 @@ const Wrapper = () => {
         'Right to Left': ViewingDirection.RIGHT_TO_LEFT,
       },
     },
+    thumbnailSize: {
+      value: 256,
+    },
   }));
 
   // here?
