@@ -25,7 +25,12 @@ export function IIIFContentProvider(props: {
     if (!props.overrides || !resource) {
       return resource;
     }
-    return Object.assign({}, resource, props.overrides || {});
+
+    const values = Object.fromEntries(
+      Object.entries(props.overrides).filter(([, value]) => typeof value !== 'undefined')
+    );
+
+    return Object.assign({}, resource, values || {});
   }, [resource, ...Object.values(props.overrides || {})]);
   const [error, setError] = useState(false);
 
