@@ -1,12 +1,14 @@
 import * as Presentation3 from '@iiif/presentation-3';
-import { IIIFContentProvider, useResource } from '../context/IIIFResourceContext';
+import { IIIFContentProvider, useThumbnailPanelContext } from '../context/IIIFResourceContext';
 import React, { useMemo } from 'react';
 import { Thumbnail } from './Thumbnail';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 import { getValue } from '@iiif/vault-helpers';
+import '../style.css';
+import { Options } from 'src/types/options';
 
 const Items = () => {
-  const { resource, isLoaded } = useResource();
+  const { resource, isLoaded, options } = useThumbnailPanelContext();
   const sequence = createSequenceHelper();
 
   const [items, seq] = useMemo(() => {
@@ -45,27 +47,15 @@ const Items = () => {
   };
 
   return (
-    <div dir={dir}>
+    <div dir={dir} thumbnail-panel="" data-orientation={options?.orientation}>
       <h3>{getValue(resource.label)}</h3>
+      <span>{options?.orientation}</span>
 
       {seq.map((row, rowIdx) => {
         return (
-          <div
-            style={{
-              padding: 10,
-              background: '#f9f9f9',
-              display: 'flex',
-              flexWrap: 'nowrap',
-            }}
-          >
-            {row.map((idx) => (
-              <div
-                tabIndex={idx === 0 ? 0 : -1}
-                key={rowIdx}
-                data-index={idx}
-                style={{ display: 'flex', background: '#ddd', borderRadius: 5, margin: 5 }}
-                onKeyDown={onKeyDown}
-              >
+          <div thumbnail-group="" key={rowIdx}>
+            {row.map((idx, itemIdx) => (
+              <div thumbnail-item="" tabIndex={idx === 0 ? 0 : -1} key={itemIdx} data-index={idx} onKeyDown={onKeyDown}>
                 <Thumbnail key={idx} item={items[idx]} />
               </div>
             ))}
@@ -73,13 +63,13 @@ const Items = () => {
         );
       })}
 
-      <p>{resource.behavior}</p>
+      {/* <p>{resource.behavior}</p>
       <p>{resource.viewingDirection || 'left-to-right'}</p>
       {resource?.items.map((item, index) => (
         <>
           <Thumbnail key={index} item={item} />
         </>
-      ))}
+      ))} */}
     </div>
   );
 };
@@ -87,12 +77,13 @@ const Items = () => {
 interface ThumbnailPanelProps {
   iiifContent: string;
   overrides?: Partial<Presentation3.Collection | Presentation3.Manifest>;
+  options: Options;
   onLoad?: (resource: any) => void;
 }
 
-export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({ iiifContent, overrides, onLoad }) => {
+export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({ iiifContent, options, overrides, onLoad }) => {
   return (
-    <IIIFContentProvider resource={iiifContent} overrides={overrides} onLoad={onLoad}>
+    <IIIFContentProvider resource={iiifContent} overrides={overrides} options={options} onLoad={onLoad}>
       <Items />
     </IIIFContentProvider>
   );

@@ -1,0 +1,16 @@
+[thumbnail-panel] {
+  display: flex;
+  flex-direction: column;
+}
+
+[thumbnail-panel][data-orientation='horizontal'] {
+  flex-direction: row;
+}
+
+[thumbnail-group] {
+  display: flex;
+}
+
+[thumbnail-item] {
+  display: flex;
+}

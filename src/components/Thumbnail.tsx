@@ -1,7 +1,7 @@
 import { Canvas, Collection, Manifest } from '@iiif/presentation-3';
 import React, { useEffect, useState } from 'react';
 import { createThumbnailHelper } from '@iiif/vault-helpers';
-import { useResource } from '../context/IIIFResourceContext';
+import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 
 interface ThumbnailProps {
   item: Canvas | Collection | Manifest;
@@ -10,7 +10,7 @@ interface ThumbnailProps {
 export const Thumbnail: React.FC<ThumbnailProps> = ({ item }) => {
   const helper = createThumbnailHelper(); // no vault
   const [thumb, setThumb] = useState<any>();
-  const { resource } = useResource();
+  const { resource } = useThumbnailPanelContext();
   const thumbnailSize = (resource as any)?.thumbnailSize || 200;
 
   useEffect(() => {

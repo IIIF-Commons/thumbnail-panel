@@ -5,7 +5,7 @@ import { Behavior, ViewingDirection, ViewingHint } from '@iiif/vocabulary';
 import { useControls } from 'leva';
 
 const Wrapper = () => {
-  const [{ iiifContent, ...overrides }, set] = useControls(() => ({
+  const [{ iiifContent }] = useControls(() => ({
     iiifContent: {
       // https://iiif-commons.github.io/fixtures/
       options: {
@@ -20,6 +20,9 @@ const Wrapper = () => {
         Continuous: 'https://iiif.io/api/cookbook/recipe/0011-book-3-behavior/manifest-continuous.json',
       },
     },
+  }));
+
+  const [{ ...overrides }, set] = useControls('overrides', () => ({
     behavior: {
       options: {
         Default: undefined,
@@ -41,6 +44,16 @@ const Wrapper = () => {
     },
   }));
 
+  const [{ ...options }] = useControls('options', () => ({
+    orientation: {
+      options: {
+        Default: 'vertical',
+        horizontal: 'horizontal',
+        vertical: 'vertical',
+      },
+    },
+  }));
+
   // here?
   return (
     <>
@@ -48,6 +61,8 @@ const Wrapper = () => {
         iiifContent={iiifContent}
         // @ts-ignore
         overrides={overrides}
+        // @ts-ignore
+        options={options}
         onLoad={(resource) => {
           console.log('onLoad', resource);
           set({
