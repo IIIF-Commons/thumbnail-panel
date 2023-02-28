@@ -1,6 +1,6 @@
 import * as Presentation3 from '@iiif/presentation-3';
 import { IIIFContentProvider, useResource } from '../context/IIIFResourceContext';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Thumbnail } from './Thumbnail';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 import { getValue } from '@iiif/vault-helpers';
@@ -9,21 +9,70 @@ const Items = () => {
   const { resource, isLoaded } = useResource();
   const sequence = createSequenceHelper();
 
-  if (!isLoaded || !resource) {
+  const [items, seq] = useMemo(() => {
+    if (!resource) {
+      //@ts-ignore
+      return [];
+    }
+    //ignore type checking on resource (expecting ManifestNormalized)
+    //@ts-ignore
+    const [items, seq] = sequence.getManifestSequence(resource, {
+      disablePaging: false,
+    });
+
+    // if (resource.viewingDirection === 'bottom-to-top') {
+    //   return [items, seq.reverse()]
+    // }
+
+    return [items, seq];
+  }, [resource]);
+
+  if (!isLoaded || !resource || !seq || !items) {
     return <></>;
   }
 
-  //ignore type checking on resource (expecting ManifestNormalized)
-  //@ts-ignore
-  const [items, seq] = sequence.getManifestSequence(resource, {
-    disablePaging: false,
-  });
+  const dir = resource.viewingDirection === 'left-to-right' ? 'ltr' : 'rtl';
 
-  console.log(`seq`, seq);
+  const onKeyDown = (e: any) => {
+    if (e.keyCode === 40) {
+      const next = 1 + Number(e.currentTarget.getAttribute('data-index'));
+      console.log(`div[data-index="${next}"]`);
+      const nextElement = (e.currentTarget as HTMLDivElement).parentElement?.parentElement?.querySelector(
+        `div[data-index="${next}"]`
+      ) as HTMLElement;
+      nextElement.focus();
+    }
+  };
 
   return (
-    <div>
+    <div dir={dir}>
       <h3>{getValue(resource.label)}</h3>
+
+      {seq.map((row, rowIdx) => {
+        return (
+          <div
+            style={{
+              padding: 10,
+              background: '#f9f9f9',
+              display: 'flex',
+              flexWrap: 'nowrap',
+            }}
+          >
+            {row.map((idx) => (
+              <div
+                tabIndex={idx === 0 ? 0 : -1}
+                key={rowIdx}
+                data-index={idx}
+                style={{ display: 'flex', background: '#ddd', borderRadius: 5, margin: 5 }}
+                onKeyDown={onKeyDown}
+              >
+                <Thumbnail key={idx} item={items[idx]} />
+              </div>
+            ))}
+          </div>
+        );
+      })}
+
       <p>{resource.behavior}</p>
       <p>{resource.viewingDirection || 'left-to-right'}</p>
       {resource?.items.map((item, index) => (
