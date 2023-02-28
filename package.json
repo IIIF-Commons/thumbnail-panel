@@ -26,7 +26,8 @@
     "start": "vite",
     "build": "node ./scripts/build.mjs",
     "prepublishOnly": "node ./scripts/build.mjs && node scripts/validate.mjs",
-    "test": "vitest"
+    "test": "vitest",
+    "ts-lint": "tsc --incremental --watch"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^8.1.4",

@@ -33,13 +33,14 @@ const Items = () => {
 
   const dir = resource.viewingDirection === 'left-to-right' ? 'ltr' : 'rtl';
 
-  const onKeyDown = (e) => {
+  const onKeyDown = (e: any) => {
     if (e.keyCode === 40) {
       const next = 1 + Number(e.currentTarget.getAttribute('data-index'));
       console.log(`div[data-index="${next}"]`);
-      (e.currentTarget as HTMLDivElement).parentElement?.parentElement
-        ?.querySelector(`div[data-index="${next}"]`)
-        ?.focus();
+      const nextElement = (e.currentTarget as HTMLDivElement).parentElement?.parentElement?.querySelector(
+        `div[data-index="${next}"]`
+      ) as HTMLElement;
+      nextElement.focus();
     }
   };
 
