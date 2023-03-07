@@ -5,7 +5,7 @@ import { Behavior, ViewingDirection, ViewingHint } from '@iiif/vocabulary';
 import { useControls } from 'leva';
 
 const Wrapper = () => {
-  const [{ iiifContent }] = useControls(() => ({
+  const [{ iiifContent }, setIIIFContent] = useControls(() => ({
     iiifContent: {
       // https://iiif-commons.github.io/fixtures/
       options: {
@@ -20,9 +20,10 @@ const Wrapper = () => {
         Continuous: 'https://iiif.io/api/cookbook/recipe/0011-book-3-behavior/manifest-continuous.json',
       },
     },
+    currentResourceId: "",
   }));
 
-  const [{ ...overrides }, set] = useControls('overrides', () => ({
+  const [{ ...overrides }, setOverrides] = useControls('overrides', () => ({
     behavior: {
       options: {
         Default: undefined,
@@ -65,8 +66,14 @@ const Wrapper = () => {
         options={options}
         onLoad={(resource) => {
           console.log('onLoad', resource);
-          set({
+          setOverrides({
             viewingDirection: resource.viewingDirection || ViewingDirection.LEFT_TO_RIGHT,
+          });
+        }}
+        onResourceChanged={(resourceId?: string) => {
+          console.log(resourceId);
+          setIIIFContent({
+            currentResourceId: resourceId,
           });
         }}
       />

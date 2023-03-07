@@ -26,6 +26,7 @@ export function IIIFContentProvider(props: {
   overrides?: Partial<Presentation3.Manifest | Presentation3.Collection>;
   options: Options;
   onLoad?: (resource?: Presentation3.Manifest | Presentation3.Collection) => void;
+  onResourceChanged?: (resourceId: string) => void;
 }) {
   const { options } = props;
   const [resource, setResource] = useState<Presentation3.Manifest | Presentation3.Collection>();

@@ -5,9 +5,10 @@ import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 
 interface ThumbnailProps {
   item: Canvas | Collection | Manifest;
+  onClick?: (resourceId?: string) => void;
 }
 
-export const Thumbnail: React.FC<ThumbnailProps> = ({ item }) => {
+export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
   const helper = createThumbnailHelper(); // no vault
   const [thumb, setThumb] = useState<any>();
   const { resource } = useThumbnailPanelContext();
@@ -30,11 +31,17 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item }) => {
   }
 
   return (
-    <figure>
-      <div style={{ width: `${thumbnailSize}px`, height: `${thumbnailSize}px`, objectFit: 'contain' }}>
-        <img src={thumb.id} alt="" style={{ maxWidth: '100%', maxHeight: '100%' }} />
-      </div>
-      <figcaption>{item.id}</figcaption>
-    </figure>
+    <button onClick={() => {
+      if (onClick) {
+        onClick(resource?.id)
+      }
+    }}>
+      <figure>
+        <div style={{ width: `${thumbnailSize}px`, height: `${thumbnailSize}px`, objectFit: 'contain' }}>
+          <img src={thumb.id} alt="" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+        </div>
+        <figcaption>{item.id}</figcaption>
+      </figure>
+    </button>
   );
 };
