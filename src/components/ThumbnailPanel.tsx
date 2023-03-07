@@ -7,7 +7,11 @@ import { getValue } from '@iiif/vault-helpers';
 import '../style.css';
 import { Options } from 'src/types/options';
 
-const Items = () => {
+const Items = ({
+  onResourceChanged
+}: {
+  onResourceChanged?: (resourceId?: string) => void
+}) => {
   const { resource, isLoaded, options } = useThumbnailPanelContext();
   const sequence = createSequenceHelper();
 
@@ -56,7 +60,13 @@ const Items = () => {
           <div thumbnail-group="" key={rowIdx}>
             {row.map((idx, itemIdx) => (
               <div thumbnail-item="" tabIndex={idx === 0 ? 0 : -1} key={itemIdx} data-index={idx} onKeyDown={onKeyDown}>
-                <Thumbnail key={idx} item={items[idx]} />
+                <Thumbnail key={idx} item={items[idx]} onClick={() => {
+                  // todo: set state
+                  if (onResourceChanged) {
+                    // console.log(idx);
+                    onResourceChanged(items[idx]?.id);
+                  }
+                }} />
               </div>
             ))}
           </div>
@@ -79,12 +89,13 @@ interface ThumbnailPanelProps {
   overrides?: Partial<Presentation3.Collection | Presentation3.Manifest>;
   options: Options;
   onLoad?: (resource: any) => void;
+  onResourceChanged?: (resourceId?: string) => void;
 }
 
-export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({ iiifContent, options, overrides, onLoad }) => {
+export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({ iiifContent, options, overrides, onLoad, onResourceChanged }) => {
   return (
     <IIIFContentProvider resource={iiifContent} overrides={overrides} options={options} onLoad={onLoad}>
-      <Items />
+      <Items onResourceChanged={onResourceChanged} />
     </IIIFContentProvider>
   );
 };
