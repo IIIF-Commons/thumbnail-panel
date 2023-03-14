@@ -3,9 +3,15 @@ import React from 'react';
 import { Thumbnail, ThumbnailPanel } from './index';
 import { Behavior, ViewingDirection, ViewingHint } from '@iiif/vocabulary';
 import { useControls } from 'leva';
+import { useState } from 'react';
+import { Manifest, Collection } from '@iiif/presentation-3';
+import { Orientation } from './types/options';
 
 const Wrapper = () => {
-  const [{ iiifContent }, setIIIFContent] = useControls(() => ({
+
+  const [ resource, setResource ] = useState<Manifest | Collection>();
+
+  const [{ iiifContent, currentResourceId, orientation }, setIIIFContent] = useControls(() => ({
     iiifContent: {
       // https://iiif-commons.github.io/fixtures/
       options: {
@@ -21,6 +27,13 @@ const Wrapper = () => {
       },
     },
     currentResourceId: "",
+    orientation: {
+      options: {
+        Default: 'vertical',
+        horizontal: 'horizontal',
+        vertical: 'vertical',
+      },
+    },
   }));
 
   const [{ ...overrides }, setOverrides] = useControls('overrides', () => ({
@@ -45,31 +58,21 @@ const Wrapper = () => {
     },
   }));
 
-  const [{ ...options }] = useControls('options', () => ({
-    orientation: {
-      options: {
-        Default: 'vertical',
-        horizontal: 'horizontal',
-        vertical: 'vertical',
-      },
-    },
-  }));
-
-  // here?
   return (
     <>
       <ThumbnailPanel
         iiifContent={iiifContent}
         // @ts-ignore
         overrides={overrides}
-        // @ts-ignore
-        options={options}
         onLoad={(resource) => {
           console.log('onLoad', resource);
+          setResource(resource);
           setOverrides({
             viewingDirection: resource.viewingDirection || ViewingDirection.LEFT_TO_RIGHT,
           });
         }}
+        currentResourceId={currentResourceId}
+        orientation={orientation as Orientation}
         onResourceChanged={(resourceId?: string) => {
           console.log(resourceId);
           setIIIFContent({
@@ -77,6 +80,47 @@ const Wrapper = () => {
           });
         }}
       />
+      <button onClick={() => {
+        let prevResourceId: string | undefined;
+
+        if (resource) {
+          const currentResourceIndex = resource.items.findIndex((item) => {
+            return item.id === currentResourceId;
+          });
+
+          if (currentResourceIndex !== -1 && currentResourceIndex !== 0) {
+            prevResourceId = resource.items[currentResourceIndex - 1].id
+          }
+
+          setIIIFContent({
+            currentResourceId: prevResourceId as string
+          });
+        }
+
+      }}>Prev</button>
+      <button onClick={() => {
+        let nextResourceId: string | undefined;
+
+        if (resource) {
+          const currentResourceIndex = resource.items.findIndex((item) => {
+            return item.id === currentResourceId;
+          });
+
+          if (currentResourceIndex !== -1 && currentResourceIndex !== resource.items.length - 1) {
+            nextResourceId = resource.items[currentResourceIndex + 1].id;
+
+            setIIIFContent({
+              currentResourceId: nextResourceId as string
+            });
+          } else {
+            // default to first
+            setIIIFContent({
+              currentResourceId: resource.items[0].id as string
+            });
+          }
+        }
+
+      }}>Next</button>
     </>
   );
 };

@@ -5,14 +5,14 @@ import { Thumbnail } from './Thumbnail';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 import { getValue } from '@iiif/vault-helpers';
 import '../style.css';
-import { Options } from 'src/types/options';
+import { Orientation } from 'src/types/options';
 
 const Items = ({
   onResourceChanged
 }: {
   onResourceChanged?: (resourceId?: string) => void
 }) => {
-  const { resource, isLoaded, options } = useThumbnailPanelContext();
+  const { resource, isLoaded, currentResourceId, orientation } = useThumbnailPanelContext();
   const sequence = createSequenceHelper();
 
   const [items, seq] = useMemo(() => {
@@ -51,15 +51,16 @@ const Items = ({
   };
 
   return (
-    <div dir={dir} thumbnail-panel="" data-orientation={options?.orientation}>
+    <div dir={dir} thumbnail-panel="" data-orientation={orientation}>
       <h3>{getValue(resource.label)}</h3>
-      <span>{options?.orientation}</span>
+      <span>{orientation}</span>
 
       {seq.map((row, rowIdx) => {
+        console.log("currentResourceId", currentResourceId);
         return (
           <div thumbnail-group="" key={rowIdx}>
             {row.map((idx, itemIdx) => (
-              <div thumbnail-item="" tabIndex={idx === 0 ? 0 : -1} key={itemIdx} data-index={idx} onKeyDown={onKeyDown}>
+              <div thumbnail-item="" tabIndex={idx === 0 ? 0 : -1} key={itemIdx} data-index={idx} onKeyDown={onKeyDown} data-selected={currentResourceId === items[idx]?.id}>
                 <Thumbnail key={idx} item={items[idx]} onClick={() => {
                   // todo: set state
                   if (onResourceChanged) {
@@ -85,16 +86,17 @@ const Items = ({
 };
 
 interface ThumbnailPanelProps {
+  currentResourceId: string | undefined;
   iiifContent: string;
-  overrides?: Partial<Presentation3.Collection | Presentation3.Manifest>;
-  options: Options;
   onLoad?: (resource: any) => void;
   onResourceChanged?: (resourceId?: string) => void;
+  orientation: Orientation;
+  overrides?: Partial<Presentation3.Collection | Presentation3.Manifest>;
 }
 
-export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({ iiifContent, options, overrides, onLoad, onResourceChanged }) => {
+export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({ iiifContent, orientation, currentResourceId, overrides, onLoad, onResourceChanged }) => {
   return (
-    <IIIFContentProvider resource={iiifContent} overrides={overrides} options={options} onLoad={onLoad}>
+    <IIIFContentProvider resource={iiifContent} overrides={overrides} orientation={orientation} currentResourceId={currentResourceId}  onLoad={onLoad}>
       <Items onResourceChanged={onResourceChanged} />
     </IIIFContentProvider>
   );
