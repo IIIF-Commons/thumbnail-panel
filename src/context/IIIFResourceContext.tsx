@@ -1,19 +1,22 @@
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { fetch } from '@iiif/vault-helpers/fetch';
 import * as Presentation3 from '@iiif/presentation-3';
-import { Options } from 'src/types/options';
+import { Orientation } from 'src/types/options';
 
 interface IIIFContentContext {
-  isLoaded: boolean;
-  resource?: Presentation3.Manifest | Presentation3.Collection;
-  options?: Options;
+  currentResourceId: string | undefined;
   error: string | any | null;
+  isLoaded: boolean;
+  orientation: Orientation;
+  resource?: Presentation3.Manifest | Presentation3.Collection;
 }
 
 const ReactContext = createContext<IIIFContentContext>({
-  isLoaded: false,
-  resource: undefined,
+  currentResourceId: undefined,
   error: null,
+  isLoaded: false,
+  orientation: "vertical",
+  resource: undefined,
 });
 
 export function useThumbnailPanelContext() {
@@ -24,23 +27,24 @@ export function IIIFContentProvider(props: {
   resource: string | any;
   children: ReactNode;
   overrides?: Partial<Presentation3.Manifest | Presentation3.Collection>;
-  options: Options;
+  currentResourceId: string | undefined;
+  orientation: Orientation;
   onLoad?: (resource?: Presentation3.Manifest | Presentation3.Collection) => void;
   onResourceChanged?: (resourceId: string) => void;
 }) {
-  const { options } = props;
+  const { currentResourceId, orientation, onLoad, overrides } = props;
   const [resource, setResource] = useState<Presentation3.Manifest | Presentation3.Collection>();
   const mergedResource = useMemo(() => {
-    if (!props.overrides || !resource) {
+    if (!overrides || !resource) {
       return resource;
     }
 
     const values = Object.fromEntries(
-      Object.entries(props.overrides).filter(([, value]) => typeof value !== 'undefined')
+      Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined')
     );
 
     return Object.assign({}, resource, values || {});
-  }, [resource, ...Object.values(props.overrides || {})]);
+  }, [resource, ...Object.values(overrides || {})]);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -54,8 +58,8 @@ export function IIIFContentProvider(props: {
       fetch(props.resource, { signal: controller.signal })
         .then((json) => {
           setResource(json as any);
-          if (props.onLoad) {
-            props.onLoad(json);
+          if (onLoad) {
+            onLoad(json);
           }
         })
         .catch((e) => setError(e));
@@ -65,15 +69,15 @@ export function IIIFContentProvider(props: {
       };
     } else {
       setResource(props.resource);
-      if (props.onLoad) {
-        props.onLoad(props.resource);
+      if (onLoad) {
+        onLoad(props.resource);
       }
     }
   }, [props.resource]);
 
   const value = useMemo(() => {
-    return { resource: mergedResource, error, isLoaded: !!resource, options: options };
-  }, [mergedResource, error, options]);
+    return { resource: mergedResource, error, isLoaded: !!resource, orientation, currentResourceId };
+  }, [mergedResource, error, orientation, currentResourceId]);
 
   return <ReactContext.Provider value={value}>{props.children}</ReactContext.Provider>;
 }

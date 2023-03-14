@@ -14,3 +14,12 @@
 [thumbnail-item] {
   display: flex;
 }
+
+[thumbnail-item]>button {
+  background: transparent;
+  border: none;
+}
+
+[thumbnail-item][data-selected='true'] {
+  background: red;
+}
