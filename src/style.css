@@ -11,6 +11,11 @@
   display: flex;
 }
 
+
+[thumbnail-group][data-selected='true'] {
+  background: blue;
+}
+
 [thumbnail-item] {
   display: flex;
 }
