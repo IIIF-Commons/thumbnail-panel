@@ -7,11 +7,7 @@ import { getValue } from '@iiif/vault-helpers';
 import '../style.css';
 import { Orientation } from 'src/types/options';
 
-const Items = ({
-  onResourceChanged
-}: {
-  onResourceChanged?: (resourceId?: string) => void
-}) => {
+const Items = ({ onResourceChanged }: { onResourceChanged?: (resourceId?: string) => void }) => {
   const { resource, isLoaded, currentResourceId, orientation } = useThumbnailPanelContext();
   const sequence = createSequenceHelper();
 
@@ -50,24 +46,46 @@ const Items = ({
     }
   };
 
+  const isCurrentGroup = (groupIdx: number) => {
+    const foundIdx = seq.findIndex((group) => {
+      const resourceIdx = items.findIndex((resource) => {
+        return resource.id === currentResourceId;
+      });
+      return group.includes(resourceIdx);
+    });
+
+    return foundIdx === groupIdx;
+  };
+
   return (
     <div dir={dir} thumbnail-panel="" data-orientation={orientation}>
       <h3>{getValue(resource.label)}</h3>
       <span>{orientation}</span>
 
-      {seq.map((row, rowIdx) => {
-        console.log("currentResourceId", currentResourceId);
+      {seq.map((group, groupIdx) => {
+        console.log('group', group);
         return (
-          <div thumbnail-group="" key={rowIdx}>
-            {row.map((idx, itemIdx) => (
-              <div thumbnail-item="" tabIndex={idx === 0 ? 0 : -1} key={itemIdx} data-index={idx} onKeyDown={onKeyDown} data-selected={currentResourceId === items[idx]?.id}>
-                <Thumbnail key={idx} item={items[idx]} onClick={() => {
-                  // todo: set state
-                  if (onResourceChanged) {
-                    // console.log(idx);
-                    onResourceChanged(items[idx]?.id);
-                  }
-                }} />
+          <div thumbnail-group="" key={groupIdx} data-selected={isCurrentGroup(groupIdx)}>
+            {group.map((idx, itemIdx) => (
+              <div
+                thumbnail-item=""
+                tabIndex={idx === 0 ? 0 : -1}
+                key={itemIdx}
+                data-index={idx}
+                onKeyDown={onKeyDown}
+                data-selected={currentResourceId === items[idx]?.id}
+              >
+                <Thumbnail
+                  key={idx}
+                  item={items[idx]}
+                  onClick={() => {
+                    // todo: set state
+                    if (onResourceChanged) {
+                      // console.log(idx);
+                      onResourceChanged(items[idx]?.id);
+                    }
+                  }}
+                />
               </div>
             ))}
           </div>
@@ -94,9 +112,22 @@ interface ThumbnailPanelProps {
   overrides?: Partial<Presentation3.Collection | Presentation3.Manifest>;
 }
 
-export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({ iiifContent, orientation, currentResourceId, overrides, onLoad, onResourceChanged }) => {
+export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
+  iiifContent,
+  orientation,
+  currentResourceId,
+  overrides,
+  onLoad,
+  onResourceChanged,
+}) => {
   return (
-    <IIIFContentProvider resource={iiifContent} overrides={overrides} orientation={orientation} currentResourceId={currentResourceId}  onLoad={onLoad}>
+    <IIIFContentProvider
+      resource={iiifContent}
+      overrides={overrides}
+      orientation={orientation}
+      currentResourceId={currentResourceId}
+      onLoad={onLoad}
+    >
       <Items onResourceChanged={onResourceChanged} />
     </IIIFContentProvider>
   );
