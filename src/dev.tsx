@@ -9,22 +9,29 @@ import { Orientation } from './types/options';
 
 const Wrapper = () => {
 
+  let contentState;
+  const url = new URL(window.location.href);
+  contentState = url.searchParams.get("iiif-content");
+  
+  const options = {
+    ...(contentState && {'iiif-content': contentState}),
+    'Non-paged at End':
+      'https://iiif-commons.github.io/fixtures/examples/thumbnail_panel/non_paged_at_end/v2/manifest.json',
+    'No Viewing Hint':
+      'https://iiif-commons.github.io/fixtures/examples/thumbnail_panel/no_viewing_hint/v2/manifest.json',
+    'Right to Left': 'https://iiif.io/api/cookbook/recipe/0010-book-2-viewing-direction/manifest-rtl.json',
+    'Top to bottom': 'https://iiif.io/api/cookbook/recipe/0010-book-2-viewing-direction/manifest-ttb.json',
+    'Bottom to top':
+      'https://gist.githubusercontent.com/stephenwf/c47dc115059ca0c4f97eb8376ecf8302/raw/933e74cbf9a90b0c0c3f627c508c29dc876f1b66/btt.json',
+    Continuous: 'https://iiif.io/api/cookbook/recipe/0011-book-3-behavior/manifest-continuous.json',
+  }
+
   const [ resource, setResource ] = useState<Manifest | Collection>();
 
   const [{ iiifContent, currentResourceId, orientation }, setIIIFContent] = useControls(() => ({
     iiifContent: {
       // https://iiif-commons.github.io/fixtures/
-      options: {
-        'Non-paged at End':
-          'https://iiif-commons.github.io/fixtures/examples/thumbnail_panel/non_paged_at_end/v2/manifest.json',
-        'No Viewing Hint':
-          'https://iiif-commons.github.io/fixtures/examples/thumbnail_panel/no_viewing_hint/v2/manifest.json',
-        'Right to Left': 'https://iiif.io/api/cookbook/recipe/0010-book-2-viewing-direction/manifest-rtl.json',
-        'Top to bottom': 'https://iiif.io/api/cookbook/recipe/0010-book-2-viewing-direction/manifest-ttb.json',
-        'Bottom to top':
-          'https://gist.githubusercontent.com/stephenwf/c47dc115059ca0c4f97eb8376ecf8302/raw/933e74cbf9a90b0c0c3f627c508c29dc876f1b66/btt.json',
-        Continuous: 'https://iiif.io/api/cookbook/recipe/0011-book-3-behavior/manifest-continuous.json',
-      },
+      options: options,
     },
     currentResourceId: "",
     orientation: {
@@ -65,7 +72,7 @@ const Wrapper = () => {
         // @ts-ignore
         overrides={overrides}
         onLoad={(resource) => {
-          console.log('onLoad', resource);
+          // console.log('onLoad', resource);
           setResource(resource);
           setOverrides({
             viewingDirection: resource.viewingDirection || ViewingDirection.LEFT_TO_RIGHT,
@@ -74,7 +81,7 @@ const Wrapper = () => {
         currentResourceId={currentResourceId}
         orientation={orientation as Orientation}
         onResourceChanged={(resourceId?: string) => {
-          console.log(resourceId);
+          // console.log(resourceId);
           setIIIFContent({
             currentResourceId: resourceId,
           });
