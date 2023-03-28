@@ -26,10 +26,6 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
     item && getData();
   }, [item]);
 
-  if (!thumb) {
-    return null;
-  }
-
   return (
     <button onClick={() => {
       if (onClick) {
@@ -37,8 +33,8 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
       }
     }}>
       <figure>
-        <div style={{ width: `${thumbnailSize}px`, height: `${thumbnailSize}px`, objectFit: 'contain' }}>
-          <img src={thumb.id} alt="" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+        <div style={{ backgroundColor: "#f0f0f0", width: `${thumbnailSize}px`, height: `${thumbnailSize}px`, objectFit: 'contain' }}>
+          {thumb ? <img src={thumb.id} alt="" style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <></>}
         </div>
         <figcaption>{item.id}</figcaption>
       </figure>

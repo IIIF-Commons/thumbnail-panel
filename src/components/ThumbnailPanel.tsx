@@ -38,7 +38,7 @@ const Items = ({ onResourceChanged }: { onResourceChanged?: (resourceId?: string
   const onKeyDown = (e: any) => {
     if (e.keyCode === 40) {
       const next = 1 + Number(e.currentTarget.getAttribute('data-index'));
-      console.log(`div[data-index="${next}"]`);
+      (`div[data-index="${next}"]`);
       const nextElement = (e.currentTarget as HTMLDivElement).parentElement?.parentElement?.querySelector(
         `div[data-index="${next}"]`
       ) as HTMLElement;
@@ -63,7 +63,7 @@ const Items = ({ onResourceChanged }: { onResourceChanged?: (resourceId?: string
       <span>{orientation}</span>
 
       {seq.map((group, groupIdx) => {
-        console.log('group', group);
+        // console.log('group', group);
         return (
           <div thumbnail-group="" key={groupIdx} data-selected={isCurrentGroup(groupIdx)}>
             {group.map((idx, itemIdx) => (
