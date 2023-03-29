@@ -45,7 +45,11 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
             objectFit: 'contain',
           }}
         >
-          {thumb ? <img src={thumb.id} alt="" style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <></>}
+          {thumb ? (
+            <img src={thumb.id} alt="" style={{ maxWidth: '100%', maxHeight: '100%' }} data-testid="thumb-image" />
+          ) : (
+            <></>
+          )}
         </div>
         <figcaption>{item.id}</figcaption>
       </figure>

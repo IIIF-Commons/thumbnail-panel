@@ -1,7 +1,9 @@
-import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { fetch } from '@iiif/vault-helpers/fetch';
 import * as Presentation3 from '@iiif/presentation-3';
+
+import React, { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
+
 import { Orientation } from 'src/types/options';
+import { fetch } from '@iiif/vault-helpers/fetch';
 
 interface IIIFContentContext {
   currentResourceId: string | undefined;
@@ -11,11 +13,11 @@ interface IIIFContentContext {
   resource?: Presentation3.Manifest | Presentation3.Collection;
 }
 
-const ReactContext = createContext<IIIFContentContext>({
+export const ReactContext = createContext<IIIFContentContext>({
   currentResourceId: undefined,
   error: null,
   isLoaded: false,
-  orientation: "vertical",
+  orientation: 'vertical',
   resource: undefined,
 });
 
@@ -39,9 +41,7 @@ export function IIIFContentProvider(props: {
       return resource;
     }
 
-    const values = Object.fromEntries(
-      Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined')
-    );
+    const values = Object.fromEntries(Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined'));
 
     return Object.assign({}, resource, values || {});
   }, [resource, ...Object.values(overrides || {})]);
