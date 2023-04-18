@@ -1,20 +1,19 @@
-import ReactDOM from 'react-dom/client';
-import React from 'react';
-import { Thumbnail, ThumbnailPanel } from './index';
 import { Behavior, ViewingDirection, ViewingHint } from '@iiif/vocabulary';
+import { Collection, Manifest } from '@iiif/presentation-3';
+import { Thumbnail, ThumbnailPanel } from './index';
+
+import { Orientation } from './types/options';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { useControls } from 'leva';
 import { useState } from 'react';
-import { Manifest, Collection } from '@iiif/presentation-3';
-import { Orientation } from './types/options';
 
 const Wrapper = () => {
-
-  let contentState;
   const url = new URL(window.location.href);
-  contentState = url.searchParams.get("iiif-content");
-  
+  const contentState = url.searchParams.get('iiif-content');
+
   const options = {
-    ...(contentState && {'iiif-content': contentState}),
+    ...(contentState && { 'iiif-content': contentState }),
     'Non-paged at End':
       'https://iiif-commons.github.io/fixtures/examples/thumbnail_panel/non_paged_at_end/v2/manifest.json',
     'No Viewing Hint':
@@ -24,16 +23,16 @@ const Wrapper = () => {
     'Bottom to top':
       'https://gist.githubusercontent.com/stephenwf/c47dc115059ca0c4f97eb8376ecf8302/raw/933e74cbf9a90b0c0c3f627c508c29dc876f1b66/btt.json',
     Continuous: 'https://iiif.io/api/cookbook/recipe/0011-book-3-behavior/manifest-continuous.json',
-  }
+  };
 
-  const [ resource, setResource ] = useState<Manifest | Collection>();
+  const [resource, setResource] = useState<Manifest | Collection>();
 
   const [{ iiifContent, currentResourceId, orientation }, setIIIFContent] = useControls(() => ({
     iiifContent: {
       // https://iiif-commons.github.io/fixtures/
       options: options,
     },
-    currentResourceId: "",
+    currentResourceId: '',
     orientation: {
       options: {
         Default: 'vertical',
@@ -87,47 +86,53 @@ const Wrapper = () => {
           });
         }}
       />
-      <button onClick={() => {
-        let prevResourceId: string | undefined;
+      <button
+        onClick={() => {
+          let prevResourceId: string | undefined;
 
-        if (resource) {
-          const currentResourceIndex = resource.items.findIndex((item) => {
-            return item.id === currentResourceId;
-          });
+          if (resource) {
+            const currentResourceIndex = resource.items.findIndex((item) => {
+              return item.id === currentResourceId;
+            });
 
-          if (currentResourceIndex !== -1 && currentResourceIndex !== 0) {
-            prevResourceId = resource.items[currentResourceIndex - 1].id
-          }
-
-          setIIIFContent({
-            currentResourceId: prevResourceId as string
-          });
-        }
-
-      }}>Prev</button>
-      <button onClick={() => {
-        let nextResourceId: string | undefined;
-
-        if (resource) {
-          const currentResourceIndex = resource.items.findIndex((item) => {
-            return item.id === currentResourceId;
-          });
-
-          if (currentResourceIndex !== -1 && currentResourceIndex !== resource.items.length - 1) {
-            nextResourceId = resource.items[currentResourceIndex + 1].id;
+            if (currentResourceIndex !== -1 && currentResourceIndex !== 0) {
+              prevResourceId = resource.items[currentResourceIndex - 1].id;
+            }
 
             setIIIFContent({
-              currentResourceId: nextResourceId as string
-            });
-          } else {
-            // default to first
-            setIIIFContent({
-              currentResourceId: resource.items[0].id as string
+              currentResourceId: prevResourceId as string,
             });
           }
-        }
+        }}
+      >
+        Prev
+      </button>
+      <button
+        onClick={() => {
+          let nextResourceId: string | undefined;
 
-      }}>Next</button>
+          if (resource) {
+            const currentResourceIndex = resource.items.findIndex((item) => {
+              return item.id === currentResourceId;
+            });
+
+            if (currentResourceIndex !== -1 && currentResourceIndex !== resource.items.length - 1) {
+              nextResourceId = resource.items[currentResourceIndex + 1].id;
+
+              setIIIFContent({
+                currentResourceId: nextResourceId as string,
+              });
+            } else {
+              // default to first
+              setIIIFContent({
+                currentResourceId: resource.items[0].id as string,
+              });
+            }
+          }
+        }}
+      >
+        Next
+      </button>
     </>
   );
 };

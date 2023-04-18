@@ -1,5 +1,6 @@
 import { Canvas, Collection, Manifest } from '@iiif/presentation-3';
 import React, { useEffect, useState } from 'react';
+
 import { createThumbnailHelper } from '@iiif/vault-helpers';
 import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 
@@ -27,14 +28,28 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
   }, [item]);
 
   return (
-    <button onClick={() => {
-      if (onClick) {
-        onClick(resource?.id)
-      }
-    }}>
+    <button
+      data-testid="thumbnail-wrapper"
+      onClick={() => {
+        if (onClick) {
+          onClick(resource?.id);
+        }
+      }}
+    >
       <figure>
-        <div style={{ backgroundColor: "#f0f0f0", width: `${thumbnailSize}px`, height: `${thumbnailSize}px`, objectFit: 'contain' }}>
-          {thumb ? <img src={thumb.id} alt="" style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <></>}
+        <div
+          style={{
+            backgroundColor: '#f0f0f0',
+            width: `${thumbnailSize}px`,
+            height: `${thumbnailSize}px`,
+            objectFit: 'contain',
+          }}
+        >
+          {thumb ? (
+            <img src={thumb.id} alt="" style={{ maxWidth: '100%', maxHeight: '100%' }} data-testid="thumb-image" />
+          ) : (
+            <></>
+          )}
         </div>
         <figcaption>{item.id}</figcaption>
       </figure>

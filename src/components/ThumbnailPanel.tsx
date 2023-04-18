@@ -1,11 +1,14 @@
+import '../style.css';
+
 import * as Presentation3 from '@iiif/presentation-3';
+
 import { IIIFContentProvider, useThumbnailPanelContext } from '../context/IIIFResourceContext';
 import React, { useMemo } from 'react';
+
+import { Orientation } from 'src/types/options';
 import { Thumbnail } from './Thumbnail';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 import { getValue } from '@iiif/vault-helpers';
-import '../style.css';
-import { Orientation } from 'src/types/options';
 
 const Items = ({ onResourceChanged }: { onResourceChanged?: (resourceId?: string) => void }) => {
   const { resource, isLoaded, currentResourceId, orientation } = useThumbnailPanelContext();
@@ -38,7 +41,7 @@ const Items = ({ onResourceChanged }: { onResourceChanged?: (resourceId?: string
   const onKeyDown = (e: any) => {
     if (e.keyCode === 40) {
       const next = 1 + Number(e.currentTarget.getAttribute('data-index'));
-      (`div[data-index="${next}"]`);
+      `div[data-index="${next}"]`;
       const nextElement = (e.currentTarget as HTMLDivElement).parentElement?.parentElement?.querySelector(
         `div[data-index="${next}"]`
       ) as HTMLElement;
