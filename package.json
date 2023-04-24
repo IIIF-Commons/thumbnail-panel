@@ -11,8 +11,9 @@
   ],
   "exports": {
     ".": {
+      "import": "./dist/bundle/esm/index.mjs",
       "require": "./dist/bundle/cjs/index.js",
-      "import": "./dist/bundle/esm/index.mjs"
+      "types": "./dist/index.d.ts"
     }
   },
   "typesVersions": {
