@@ -1,6 +1,6 @@
 import { build } from 'vite';
-import { defineConfig } from './base-config.mjs';
 import chalk from 'chalk';
+import { defineConfig } from './base-config.mjs';
 import { execa } from 'execa';
 
 (async () => {
@@ -23,6 +23,11 @@ import { execa } from 'execa';
       entry: `src/index.tsx`,
       name: 'index',
       outDir: `${DIST}/bundle`,
+      external: ['react', 'react-dom'],
+      globals: {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+      },
     })
   );
 

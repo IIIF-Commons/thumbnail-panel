@@ -3,7 +3,6 @@
 [Demo](https://thumbnail-panel.netlify.app/) | [Code Sandbox](https://codesandbox.io/dashboard/repositories/github/IIIF-Commons/thumbnail-panel)
 
 ```bash
-# Not yet live
 npm i @iiif/thumbnail-panel
 ```
 
@@ -25,3 +24,15 @@ The app will export React components, and also a vanilla JavaScript bundled vers
 ### Vanilla JavaScript
 
 ### React
+
+```jsx
+import { ThumbnailPanel } from "@iiif/thumbnail-panel";
+
+...
+<ThumbnailPanel
+    iiifContent="https://iiif-commons.github.io/fixtures/examples/thumbnail_panel/non_paged_at_end/v2/manifest.json"
+    currentResourceId=""
+    orientation="vertical"
+/>
+
+```
