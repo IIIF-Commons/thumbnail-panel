@@ -12,8 +12,7 @@
   "exports": {
     ".": {
       "import": "./dist/bundle/esm/index.mjs",
-      "require": "./dist/bundle/cjs/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/bundle/cjs/index.js"
     }
   },
   "typesVersions": {

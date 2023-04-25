@@ -10,13 +10,17 @@ import { Thumbnail } from './Thumbnail';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 import { getValue } from '@iiif/vault-helpers';
 
-const Items = ({ onResourceChanged }: { onResourceChanged?: (resourceId?: string) => void }) => {
+type OnResourceChanged = (resourceId?: string) => void;
+interface ItemsProps {
+  onResourceChanged?: OnResourceChanged;
+}
+
+const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
   const { resource, isLoaded, currentResourceId, orientation } = useThumbnailPanelContext();
   const sequence = createSequenceHelper();
 
   const [items, seq] = useMemo(() => {
     if (!resource) {
-      //@ts-ignore
       return [];
     }
     //ignore type checking on resource (expecting ManifestNormalized)
@@ -110,7 +114,7 @@ interface ThumbnailPanelProps {
   currentResourceId: string | undefined;
   iiifContent: string;
   onLoad?: (resource: any) => void;
-  onResourceChanged?: (resourceId?: string) => void;
+  onResourceChanged?: OnResourceChanged;
   orientation: Orientation;
   overrides?: Partial<Presentation3.Collection | Presentation3.Manifest>;
 }

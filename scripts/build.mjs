@@ -8,14 +8,18 @@ import { execa } from 'execa';
 
   // Main UMD build.
   buildMsg('UMD');
-  await build(
-    defineConfig({
-      entry: `src/index.umd.ts`,
-      globalName: 'IIIFThumbnailPanel',
-      name: 'index',
-      outDir: DIST,
-    })
-  );
+  const umdConfig = defineConfig({
+    entry: `src/index.umd.ts`,
+    globalName: 'IIIFThumbnailPanel',
+    name: 'index',
+    outDir: DIST,
+  });
+  await build({
+    ...umdConfig,
+    // Allow the component to get passed into a browser import w/o erroring
+    // on process.env...
+    define: { 'process.env.NODE_ENV': '"production"' },
+  });
 
   buildMsg('@iiif/thumbnail-panel');
   await build(
@@ -23,7 +27,7 @@ import { execa } from 'execa';
       entry: `src/index.tsx`,
       name: 'index',
       outDir: `${DIST}/bundle`,
-      external: ['react', 'react-dom'],
+      external: ['react', 'react-dom', 'react-dom/client'],
       globals: {
         react: 'React',
         'react-dom': 'ReactDOM',
