@@ -1,0 +1,1 @@
+[thumbnail-panel]{display:flex;flex-direction:column}[thumbnail-panel][data-orientation=horizontal]{flex-direction:row}[thumbnail-group]{display:flex}[thumbnail-group][data-selected=true]{background:blue}[thumbnail-item]{display:flex}[thumbnail-item]>button{background:transparent;border:none}[thumbnail-item][data-selected=true]{background:red}
