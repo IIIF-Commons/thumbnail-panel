@@ -1,6 +1,6 @@
 {
   "name": "@iiif/thumbnail-panel",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": "git@github.com:IIIF-Commons/thumbnail-panel.git",
   "license": "MIT",
   "main": "dist/bundle/cjs/index.js",
