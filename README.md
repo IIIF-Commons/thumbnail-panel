@@ -48,7 +48,7 @@ npm version patch
 This will update the `package.json` version and create a git tag. Then push both the main/tag.
 
 ```
-git push origin main 0.0.8
+git push origin main v0.0.8
 ```
 
 Then the GitHub action will pick up the tag and publish it to NPM :tada:
