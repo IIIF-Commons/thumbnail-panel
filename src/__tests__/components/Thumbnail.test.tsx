@@ -36,7 +36,7 @@ describe('Thumbnail', function () {
         <Thumbnail item={canvas1 as Canvas} onClick={onClick} />
       </ReactContext.Provider>
     );
-    screen.getByTestId('thumbnail-wrapper').click();
+    screen.getByTestId('thumbnail-button').click();
     expect(onClick).toHaveBeenCalledWith(resource1.id);
   });
 
