@@ -14,9 +14,6 @@ export const useIsInView = (ref: React.RefObject<HTMLElement | null>): boolean =
       (entries) => {
         entries.forEach((entry) => {
           setIsInView(entry.isIntersecting);
-          if (ref.current) {
-            observer.unobserve(ref.current);
-          }
         });
       },
       {
