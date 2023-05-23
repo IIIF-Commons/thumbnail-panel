@@ -111,11 +111,11 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
 };
 
 interface ThumbnailPanelProps {
-  currentResourceId: string | undefined;
+  currentResourceId?: string | undefined;
   iiifContent: string;
   onLoad?: (resource: any) => void;
   onResourceChanged?: OnResourceChanged;
-  orientation: Orientation;
+  orientation?: Orientation;
   overrides?: Partial<Presentation3.Collection | Presentation3.Manifest>;
 }
 
@@ -131,7 +131,7 @@ export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
     <IIIFContentProvider
       resource={iiifContent}
       overrides={overrides}
-      orientation={orientation}
+      orientation={orientation || 'vertical'}
       currentResourceId={currentResourceId}
       onLoad={onLoad}
     >
