@@ -35,6 +35,44 @@ import { execa } from 'execa';
     })
   );
 
+  buildMsg('WebComponent');
+  await build({
+    resolve: {
+      alias: {
+        react: 'preact/compat',
+      },
+    },
+    esbuild:{
+      jsxFactory:'h',
+      jsxFragment:'PFrag',
+      jsxInject:`import { h, Fragment as PFrag } from 'preact'`,
+    },
+    build: {
+      sourcemap: true,
+      outDir: `${DIST}/web-components`,
+      lib: {
+        entry: 'src/web-components/index.ts',
+        formats: ['umd'],
+        name: 'IIIFThumbnailPanelWC',
+        fileName: (format) => {
+          return `index.umd.js`;
+        },
+      },
+      minify: 'terser',
+      plugins: [],
+      rollupOptions: {
+        treeshake: true,
+        external: [],
+        output: {
+          globals: {},
+          inlineDynamicImports: true,
+        },
+      },
+    },
+    define: { 'process.env.NODE_ENV': '"production"' },
+  });
+
+
   buildMsg('Types');
 
   listItem('@iiif/thumbnail-panel');
