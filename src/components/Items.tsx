@@ -1,12 +1,9 @@
 import '../style.css';
 
-import React, { useMemo } from 'react';
-
+import React from 'react';
 import { OnResourceChanged } from 'src/types/types';
 import { Thumbnail } from './Thumbnail';
-import { getValue } from '@iiif/vault-helpers';
 import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
-import { s } from 'vitest/dist/index-2dd51af4';
 
 interface ItemsProps {
   onResourceChanged?: OnResourceChanged;
@@ -67,7 +64,6 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
       data-previous-resource={prev.resourceId}
     >
       {sequences.map((group, groupIdx) => {
-        // console.log('group', group);
         return (
           <div thumbnail-group="" key={groupIdx} data-selected={isCurrentGroup(groupIdx)}>
             {group.map((idx, itemIdx) => (
@@ -89,14 +85,6 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
           </div>
         );
       })}
-
-      {/* <p>{resource.behavior}</p>
-      <p>{resource.viewingDirection || 'left-to-right'}</p>
-      {resource?.items.map((item, index) => (
-        <>
-          <Thumbnail key={index} item={item} />
-        </>
-      ))} */}
     </div>
   );
 };
