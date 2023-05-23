@@ -60,7 +60,7 @@ const Wrapper = () => {
       },
     },
     thumbnailSize: {
-      value: 256,
+      value: 125,
     },
   }));
 

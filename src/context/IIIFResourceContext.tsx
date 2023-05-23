@@ -52,6 +52,7 @@ export function IIIFContentProvider(props: {
       return;
     }
 
+    // if it's a url to a manifest
     if (typeof props.resource === 'string') {
       const controller = new AbortController();
 
@@ -68,6 +69,7 @@ export function IIIFContentProvider(props: {
         controller.abort();
       };
     } else {
+      // it's an id of a specific resource within a manifest
       setResource(props.resource);
       if (onLoad) {
         onLoad(props.resource);

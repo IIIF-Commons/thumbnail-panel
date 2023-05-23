@@ -62,8 +62,8 @@ const Items = ({ onResourceChanged }: { onResourceChanged?: (resourceId?: string
 
   return (
     <div dir={dir} thumbnail-panel="" data-orientation={orientation}>
-      <h3>{getValue(resource.label)}</h3>
-      <span>{orientation}</span>
+      {/* <h3>{getValue(resource.label)}</h3> */}
+      {/* <span>{orientation}</span> */}
 
       {seq.map((group, groupIdx) => {
         // console.log('group', group);

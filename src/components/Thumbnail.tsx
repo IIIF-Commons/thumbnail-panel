@@ -1,7 +1,7 @@
 import { Canvas, Collection, Manifest } from '@iiif/presentation-3';
 import React, { useEffect, useState } from 'react';
 
-import { createThumbnailHelper } from '@iiif/vault-helpers';
+import { createThumbnailHelper, getValue } from '@iiif/vault-helpers';
 import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 
 interface ThumbnailProps {
@@ -51,7 +51,8 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
             <></>
           )}
         </div>
-        <figcaption>{item.id}</figcaption>
+        {console.log(item)}
+        <figcaption>{getValue(item.label)}</figcaption>
       </figure>
     </button>
   );
