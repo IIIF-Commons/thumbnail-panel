@@ -6,15 +6,11 @@ import { useCustomEvent } from './helpers/use-custom-event';
 interface ThumbnailPanelAttributes {
   'iiif-content': string;
   'current-resource-id'?: string;
-  'some-state'?: () => string;
 }
 
 interface ThumbnailPanelProps {
   iiifContent: string;
   currentResourceId?: string;
-  someState?: () => {
-    thisStateString: 'this is a string';
-  };
   __registerPublicApi: (component: any) => void;
 }
 
@@ -34,7 +30,7 @@ function ThumbnailPanelWebComponent(props: ThumbnailPanelProps & ThumbnailPanelA
   return <ThumbnailPanel {...props} onResourceChanged={handleOnChange} orientation={'vertical'} />;
 }
 
-const thumbnailPanelProps = ['iiif-content', 'current-resource-id', 'some-state'];
+const thumbnailPanelProps = ['iiif-content', 'current-resource-id'];
 
 if (typeof window !== 'undefined') {
   register(ThumbnailPanelWebComponent, 'thumbnail-panel', thumbnailPanelProps, {
