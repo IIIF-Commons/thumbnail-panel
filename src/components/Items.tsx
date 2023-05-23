@@ -6,6 +6,7 @@ import { OnResourceChanged } from 'src/types/types';
 import { Thumbnail } from './Thumbnail';
 import { getValue } from '@iiif/vault-helpers';
 import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
+import { s } from 'vitest/dist/index-2dd51af4';
 
 interface ItemsProps {
   onResourceChanged?: OnResourceChanged;
@@ -15,6 +16,8 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
   const {
     dispatch,
     state: { currentResourceId, isControlled, isLoaded, orientation, resource, sequences },
+    next,
+    prev,
   } = useThumbnailPanelContext();
 
   if (!isLoaded || !resource || !sequences || !resource?.items) {
@@ -55,10 +58,14 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
   };
 
   return (
-    <div dir={dir} thumbnail-panel="" data-orientation={orientation}>
-      <h3>{getValue(resource.label)}</h3>
-      <span>{orientation}</span>
-
+    <div
+      dir={dir}
+      thumbnail-panel=""
+      data-orientation={orientation}
+      data-current-resource={currentResourceId}
+      data-next-resource={next.resourceId}
+      data-previous-resource={prev.resourceId}
+    >
       {sequences.map((group, groupIdx) => {
         // console.log('group', group);
         return (

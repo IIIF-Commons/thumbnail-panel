@@ -1,7 +1,7 @@
 import React from 'react';
 
 const NextButton = () => {
-  return <>My React Next Button</>;
+  return <>...</>;
 };
 
 export default NextButton;

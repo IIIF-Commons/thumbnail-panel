@@ -12,21 +12,34 @@
   <body>
     <script src="./dist/web-components/index.umd.js"></script>
 
-    <div>
-      <button>Previous</button>
-      <button>Next</button>
-    </div>
-
-    <thumbnail-panel-next id="tp-next"></thumbnail-panel-next>
+    <button id="thumbnail-panel-next">Next</button>
+    <button id="thumbnail-panel-previous">Previous</button>
 
     <thumbnail-panel id="tp" iiif-content="https://digirati-co-uk.github.io/wunder.json"></thumbnail-panel>
 
     <script>
       const tp = document.getElementById('tp');
+      const nextButton = document.getElementById('thumbnail-panel-next');
+      const previousButton = document.getElementById('thumbnail-panel-previous');
 
       tp.addEventListener('resource-changed', (e) => {
-        console.log('resource-changed', e.detail.resourceId);
-        // tp.setAttribute('current-resource-id', e.detail.resourceId || '');
+        const target = e.target.querySelector('[thumbnail-panel]');
+
+        if (target) {
+          const next = target.getAttribute('data-next-resource');
+          nextButton.setAttribute('data-id', next);
+
+          const previous = target.getAttribute('data-previous-resource');
+          previousButton.setAttribute('data-id', previous);
+        }
+      });
+
+      nextButton.addEventListener('click', (e) => {
+        tp.setAttribute('current-resource-id', e.target.getAttribute('data-id'));
+      });
+
+      previousButton.addEventListener('click', (e) => {
+        tp.setAttribute('current-resource-id', e.target.getAttribute('data-id'));
       });
     </script>
   </body>

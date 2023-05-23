@@ -57,25 +57,28 @@ export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
   }, [iiifContent]);
 
   return (
-    <IIIFContentProvider
-      key={resource?.id}
-      initialState={{
-        currentResourceId: currentResourceId || '',
-        isControlled: !currentResourceId,
-        onResourceChanged,
-        orientation,
-        overrides,
-        resource,
-      }}
-    >
-      {/* {error && <p>Error: {error.message}</p>} */}
-      <ItemsWrapper currentResourceId={currentResourceId} orientation={orientation} overrides={overrides}>
-        <>
-          <Items onResourceChanged={onResourceChanged} />
-          {children}
-        </>
-      </ItemsWrapper>
-    </IIIFContentProvider>
+    <>
+      <span>where is this</span>
+      <IIIFContentProvider
+        key={resource?.id}
+        initialState={{
+          currentResourceId: currentResourceId || '',
+          isControlled: !currentResourceId,
+          onResourceChanged,
+          orientation,
+          overrides,
+          resource,
+        }}
+      >
+        {/* {error && <p>Error: {error.message}</p>} */}
+        <ItemsWrapper currentResourceId={currentResourceId} orientation={orientation} overrides={overrides}>
+          <>
+            <Items onResourceChanged={onResourceChanged} />
+            {children}
+          </>
+        </ItemsWrapper>
+      </IIIFContentProvider>
+    </>
   );
 };
 
