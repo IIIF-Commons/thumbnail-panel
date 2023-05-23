@@ -29,14 +29,26 @@
           const next = target.getAttribute('data-next-resource');
           nextButton.setAttribute('data-id', next);
 
+          if (next === null) {
+            nextButton.setAttribute('disabled', true);
+          } else {
+            nextButton.removeAttribute('disabled');
+          }
+
           const previous = target.getAttribute('data-previous-resource');
           previousButton.setAttribute('data-id', previous);
+
+          if (previous === null) {
+            previousButton.setAttribute('disabled', true);
+          } else {
+            previousButton.removeAttribute('disabled');
+          }
         }
       });
 
       nextButton.addEventListener('click', (e) => {
         const next = e.target.getAttribute('data-id');
-        if (next !== 'null') tp.setAttribute('current-resource-id', next);
+        if (next != 'null') tp.setAttribute('current-resource-id', next);
       });
 
       previousButton.addEventListener('click', (e) => {
