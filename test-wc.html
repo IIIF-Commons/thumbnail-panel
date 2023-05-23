@@ -35,11 +35,13 @@
       });
 
       nextButton.addEventListener('click', (e) => {
-        tp.setAttribute('current-resource-id', e.target.getAttribute('data-id'));
+        const next = e.target.getAttribute('data-id');
+        if (next !== 'null') tp.setAttribute('current-resource-id', next);
       });
 
       previousButton.addEventListener('click', (e) => {
-        tp.setAttribute('current-resource-id', e.target.getAttribute('data-id'));
+        const prev = e.target.getAttribute('data-id');
+        if (prev !== 'null') tp.setAttribute('current-resource-id', prev);
       });
     </script>
   </body>
