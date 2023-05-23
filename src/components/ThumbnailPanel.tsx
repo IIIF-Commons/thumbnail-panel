@@ -8,7 +8,6 @@ import React, { useMemo } from 'react';
 import { Orientation } from 'src/types/options';
 import { Thumbnail } from './Thumbnail';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
-import { getValue } from '@iiif/vault-helpers';
 
 const Items = ({ onResourceChanged }: { onResourceChanged?: (resourceId?: string) => void }) => {
   const { resource, isLoaded, currentResourceId, orientation } = useThumbnailPanelContext();

@@ -18,7 +18,7 @@
 [thumbnail-item] {
   display: flex;
   margin: 0 0.5rem 0.5rem 0;
-  border: 2px solid transparent;
+  /* border: 2px solid transparent; */
 }
 
 [thumbnail-item] > button {
@@ -33,13 +33,19 @@
   margin: 0;
 }
 
+[thumbnail-item] > button > figure > div > img {
+  width: 100%;
+  height: 100%;
+  object-position: 50% 50%;
+  object-fit: contain;
+}
+
 [thumbnail-item] > button > figure > figcaption {
-  text-align: left;
-  padding: 0.25rem 0 0.25rem 0.25rem;
-  font-size: 0.75rem;
+  /* text-align: left; */
+  /* padding: 0.25rem 0 0.25rem 0.25rem;
+  font-size: 0.75rem; */
 }
 
 [thumbnail-item][data-selected='true'] {
-  /* background: red; */
-  border: 2px solid blue;
+  outline: 1px solid black;
 }
