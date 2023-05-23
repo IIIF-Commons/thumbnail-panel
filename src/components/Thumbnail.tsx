@@ -2,8 +2,8 @@ import { Canvas, Collection, Manifest } from '@iiif/presentation-3';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { createThumbnailHelper } from '@iiif/vault-helpers';
-import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 import { useIsInView } from '../hooks/useIsInView';
+import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 
 interface ThumbnailProps {
   item: Canvas | Collection | Manifest;
@@ -14,7 +14,9 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
   const helper = createThumbnailHelper(); // no vault
   const [thumb, setThumb] = useState<any>();
   const ref = useRef<HTMLDivElement>(null);
-  const { resource } = useThumbnailPanelContext();
+  const {
+    state: { resource },
+  } = useThumbnailPanelContext();
   const isInView = useIsInView(ref);
   const thumbnailSize = (resource as any)?.thumbnailSize || 200;
 
@@ -38,6 +40,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
         data-testid="thumbnail-button"
         onClick={() => {
           if (onClick) {
+            console.log('resource.id', resource?.id);
             onClick(resource?.id);
           }
         }}
