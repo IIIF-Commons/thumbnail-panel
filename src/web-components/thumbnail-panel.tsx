@@ -26,7 +26,7 @@ function ThumbnailPanelWebComponent(props: ThumbnailPanelProps & ThumbnailPanelA
     }
   }, []);
 
-  const handleOnChange = useCustomEvent(webComponent, 'resource-changed', (e) => ({ obj: e }));
+  const handleOnChange = useCustomEvent(webComponent, 'resource-changed', (e) => e);
 
   return <ThumbnailPanel {...props} onResourceChanged={handleOnChange} orientation={'vertical'} />;
 }

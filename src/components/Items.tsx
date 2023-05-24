@@ -13,6 +13,7 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
   const {
     dispatch,
     state: { currentResourceId, isControlled, isLoaded, orientation, resource, sequences },
+    getNavId,
     next,
     prev,
   } = useThumbnailPanelContext();
@@ -50,8 +51,8 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
       onResourceChanged({
         resourceIds: {
           current: resourceId,
-          next: next.resourceId,
-          previous: prev.resourceId,
+          next: getNavId({ currentResourceId: resourceId, direction: 'next' }),
+          previous: getNavId({ currentResourceId: resourceId, direction: 'prev' }),
         },
       });
     }

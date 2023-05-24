@@ -1,5 +1,5 @@
 import React, { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { getNavResourceItemId, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
+import { getNavResourceItemId, getResourceItemIndex, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
 import { Orientation } from 'src/types/options';
 import { type OnResourceChanged, type Resource } from 'src/types/types';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
@@ -64,6 +64,13 @@ const ReactContext = createContext<
   | {
       state: State;
       dispatch: Dispatch;
+      getNavId: ({
+        currentResourceId,
+        direction,
+      }: {
+        currentResourceId: string;
+        direction: 'next' | 'prev';
+      }) => string | undefined;
       next: {
         resourceId: string | undefined;
         handleNextClick: () => void;
@@ -176,11 +183,23 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
     }
   }, [resource]);
 
-  // useEffect(() => {
-  //   if (currentResourceId && onResourceChanged) {
-  //     onResourceChanged({ resourceId: currentResourceId });
-  //   }
-  // }, [currentResourceId]);
+  useEffect(() => {
+    if (currentResourceId && onResourceChanged) {
+      onResourceChanged({
+        resourceIds: {
+          current: currentResourceId,
+          next: getNavId({
+            currentResourceId,
+            direction: 'next',
+          }),
+          previous: getNavId({
+            currentResourceId,
+            direction: 'prev',
+          }),
+        },
+      });
+    }
+  }, [currentResourceId]);
 
   const next = () => {
     const nextResourceId = getNavResourceItemId({
@@ -211,6 +230,27 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
       });
   };
 
+  const getNavId = ({ currentResourceId, direction }: { currentResourceId: string; direction: 'next' | 'prev' }) => {
+    if (!currentResourceId || !resource || !sequences) {
+      return;
+    }
+
+    const sequencesIdx = sequences.findIndex((group) => {
+      const currentResourceIndex = getResourceItemIndex(currentResourceId, resource);
+      return group.includes(currentResourceIndex);
+    });
+
+    if (direction === 'next' && sequencesIdx === sequences.length - 1) {
+      return;
+    }
+    if (direction === 'prev' && sequencesIdx === 0) {
+      return;
+    }
+
+    const resourceId = resource.items[sequences[direction === 'next' ? sequencesIdx + 1 : sequencesIdx - 1][0]].id;
+    return resourceId;
+  };
+
   const value = {
     state: {
       ...state,
@@ -220,6 +260,7 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
       resource: mergedResource,
     },
     dispatch,
+    getNavId,
     next: {
       resourceId: getNavResourceItemId({
         currentResourceId,

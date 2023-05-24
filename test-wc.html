@@ -24,22 +24,21 @@
 
       tp.addEventListener('resource-changed', (e) => {
         console.log('e', e);
+        const { resourceIds } = e.detail;
         const target = e.target.querySelector('[thumbnail-panel]');
 
         if (target) {
-          const next = target.getAttribute('data-next-resource');
-          nextButton.setAttribute('data-id', next);
+          nextButton.setAttribute('data-id', resourceIds.next);
 
-          if (next === null) {
+          if (!resourceIds.next) {
             nextButton.setAttribute('disabled', true);
           } else {
             nextButton.removeAttribute('disabled');
           }
 
-          const previous = target.getAttribute('data-previous-resource');
-          previousButton.setAttribute('data-id', previous);
+          previousButton.setAttribute('data-id', resourceIds.previous);
 
-          if (previous === null) {
+          if (!resourceIds.previous) {
             previousButton.setAttribute('disabled', true);
           } else {
             previousButton.removeAttribute('disabled');
