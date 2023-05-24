@@ -23,6 +23,7 @@
       const previousButton = document.getElementById('thumbnail-panel-previous');
 
       tp.addEventListener('resource-changed', (e) => {
+        console.log('e', e);
         const target = e.target.querySelector('[thumbnail-panel]');
 
         if (target) {

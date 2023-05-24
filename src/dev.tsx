@@ -125,11 +125,11 @@ const Wrapper = () => {
         }}
         currentResourceId={currentResourceId}
         orientation={orientation as Orientation}
-        onResourceChanged={(resourceId?: string) => {
-          setIIIFContent({
-            currentResourceId: resourceId,
-          });
-        }}
+        // onResourceChanged={(resourceId?: string) => {
+        //   setIIIFContent({
+        //     currentResourceId: resourceId,
+        //   });
+        // }}
       />
       <button onClick={handlePrevClick}>Prev</button>
       <button onClick={handleNextClick}>Next</button>

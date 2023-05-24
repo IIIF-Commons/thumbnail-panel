@@ -148,7 +148,24 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
         const id = resource.items[0].id;
 
         // Pass back the first resource id on load
-        onResourceChanged && onResourceChanged(id);
+        onResourceChanged &&
+          onResourceChanged({
+            resourceIds: {
+              current: id,
+              next: getNavResourceItemId({
+                currentResourceId: id,
+                direction: 'next',
+                resource,
+                sequences: resourceSequences,
+              }),
+              previous: getNavResourceItemId({
+                currentResourceId: id,
+                direction: 'prev',
+                resource,
+                sequences: resourceSequences,
+              }),
+            },
+          });
 
         // If current resource id is controlled, update context
         dispatch({
@@ -159,11 +176,11 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
     }
   }, [resource]);
 
-  useEffect(() => {
-    if (currentResourceId && onResourceChanged) {
-      onResourceChanged(currentResourceId);
-    }
-  }, [currentResourceId]);
+  // useEffect(() => {
+  //   if (currentResourceId && onResourceChanged) {
+  //     onResourceChanged({ resourceId: currentResourceId });
+  //   }
+  // }, [currentResourceId]);
 
   const next = () => {
     const nextResourceId = getNavResourceItemId({

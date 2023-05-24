@@ -33,8 +33,9 @@ const Wrapper = () => {
           `https://iiif-commons.github.io/fixtures/examples/thumbnail_panel/non_paged_at_end/v2/manifest.json`
         }
         orientation={`vertical`}
-        onResourceChanged={(resourceId?: string) => {
-          setCurrentId(resourceId);
+        onResourceChanged={({ resourceIds }) => {
+          console.log('resourceIds', resourceIds);
+          setCurrentId(resourceIds.current);
         }}
       >
         <NavWrapperTest />

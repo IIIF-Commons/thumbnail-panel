@@ -1,7 +1,7 @@
 import '../style.css';
 
-import React from 'react';
 import { OnResourceChanged } from 'src/types/types';
+import React from 'react';
 import { Thumbnail } from './Thumbnail';
 import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 
@@ -47,7 +47,13 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
 
   const handleThumbClick = (resourceId: string) => {
     if (onResourceChanged) {
-      onResourceChanged(resourceId);
+      onResourceChanged({
+        resourceIds: {
+          current: resourceId,
+          next: next.resourceId,
+          previous: prev.resourceId,
+        },
+      });
     }
     if (isControlled) {
       dispatch({ type: 'updateCurrentId', id: resourceId });
