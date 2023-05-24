@@ -1,5 +1,5 @@
 import React, { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { getNavResourceItemId, getResourceItemIndex, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
+import { getResourceItemIndex, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
 import { Orientation } from 'src/types/options';
 import { type OnResourceChanged, type Resource } from 'src/types/types';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
@@ -159,17 +159,13 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
           onResourceChanged({
             resourceIds: {
               current: id,
-              next: getNavResourceItemId({
+              next: getNavId({
                 currentResourceId: id,
                 direction: 'next',
-                resource,
-                sequences: resourceSequences,
               }),
-              previous: getNavResourceItemId({
+              previous: getNavId({
                 currentResourceId: id,
                 direction: 'prev',
-                resource,
-                sequences: resourceSequences,
               }),
             },
           });
@@ -202,11 +198,9 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   }, [currentResourceId]);
 
   const next = () => {
-    const nextResourceId = getNavResourceItemId({
+    const nextResourceId = getNavId({
       currentResourceId,
       direction: 'next',
-      resource,
-      sequences,
     });
 
     nextResourceId &&
@@ -217,11 +211,9 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   };
 
   const prev = () => {
-    const prevResourceId = getNavResourceItemId({
+    const prevResourceId = getNavId({
       currentResourceId,
       direction: 'prev',
-      resource,
-      sequences,
     });
     prevResourceId &&
       dispatch({
@@ -262,20 +254,16 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
     dispatch,
     getNavId,
     next: {
-      resourceId: getNavResourceItemId({
+      resourceId: getNavId({
         currentResourceId,
         direction: 'next',
-        resource,
-        sequences,
       }),
       handleNextClick: next,
     },
     prev: {
-      resourceId: getNavResourceItemId({
+      resourceId: getNavId({
         currentResourceId,
         direction: 'prev',
-        resource,
-        sequences,
       }),
       handlePrevClick: prev,
     },
