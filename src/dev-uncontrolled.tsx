@@ -34,6 +34,7 @@ const Wrapper = () => {
         }
         orientation={`vertical`}
         onResourceChanged={({ resourceIds }) => {
+          console.log('resourceIds', resourceIds);
           setCurrentId(resourceIds.current);
         }}
       >

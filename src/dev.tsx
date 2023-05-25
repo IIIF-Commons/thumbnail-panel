@@ -94,7 +94,6 @@ const Wrapper = () => {
     const currentResourceIndex = resource.items.findIndex((item) => {
       return item.id === currentResourceId;
     });
-    console.log('currentResourceIndex', currentResourceIndex);
 
     if (currentResourceIndex !== -1 && currentResourceIndex !== resource.items.length - 1) {
       nextResourceId = resource.items[currentResourceIndex + 1].id;
@@ -125,11 +124,11 @@ const Wrapper = () => {
         }}
         currentResourceId={currentResourceId}
         orientation={orientation as Orientation}
-        // onResourceChanged={(resourceId?: string) => {
-        //   setIIIFContent({
-        //     currentResourceId: resourceId,
-        //   });
-        // }}
+        onResourceChanged={({ resourceIds }) => {
+          setIIIFContent({
+            currentResourceId: resourceIds.current,
+          });
+        }}
       />
       <button onClick={handlePrevClick}>Prev</button>
       <button onClick={handleNextClick}>Next</button>
