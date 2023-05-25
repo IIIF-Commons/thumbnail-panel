@@ -1,4 +1,4 @@
-import React, { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
 import { getResourceItemIndex, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
 import { Orientation } from 'src/types/options';
 import { type OnResourceChanged, type Resource } from 'src/types/types';
@@ -139,7 +139,7 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   }, [resource, ...Object.values(overrides || {})]);
 
   useEffect(() => {
-    if (resource && isControlled) {
+    if (resource) {
       const sequence = createSequenceHelper();
       // @ts-ignore
       const [items, resourceSequences] = sequence.getManifestSequence(resource, {
@@ -151,7 +151,7 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
         sequences: resourceSequences,
       });
 
-      if (isControlled) {
+      if (!isControlled) {
         const id = resource.items[0].id;
 
         // Pass back the first resource id on load
@@ -222,26 +222,34 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
       });
   };
 
-  const getNavId = ({ currentResourceId, direction }: { currentResourceId: string; direction: 'next' | 'prev' }) => {
-    if (!currentResourceId || !resource || !sequences) {
-      return;
-    }
+  const getNavId = useCallback(
+    ({ currentResourceId, direction }: { currentResourceId: string; direction: 'next' | 'prev' }) => {
+      if (!currentResourceId || !resource || !sequences) {
+        return;
+      }
 
-    const sequencesIdx = sequences.findIndex((group) => {
-      const currentResourceIndex = getResourceItemIndex(currentResourceId, resource);
-      return group.includes(currentResourceIndex);
-    });
+      const sequencesIdx = sequences.findIndex((group) => {
+        const currentResourceIndex = getResourceItemIndex(currentResourceId, resource);
+        return group.includes(currentResourceIndex);
+      });
 
-    if (direction === 'next' && sequencesIdx === sequences.length - 1) {
-      return;
-    }
-    if (direction === 'prev' && sequencesIdx === 0) {
-      return;
-    }
+      if (direction === 'next' && sequencesIdx === sequences.length - 1) {
+        return;
+      }
+      if (direction === 'prev' && sequencesIdx === 0) {
+        return;
+      }
 
-    const resourceId = resource.items[sequences[direction === 'next' ? sequencesIdx + 1 : sequencesIdx - 1][0]].id;
-    return resourceId;
-  };
+      try {
+        const sequenceIndex = sequences[direction === 'next' ? sequencesIdx + 1 : sequencesIdx - 1][0];
+        const resourceId = resource.items[sequenceIndex].id;
+        return resourceId;
+      } catch (e) {
+        return '';
+      }
+    },
+    [resource, sequences]
+  );
 
   const value = {
     state: {

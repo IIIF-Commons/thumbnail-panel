@@ -38,6 +38,7 @@ export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
         fetch(iiifContent, { signal: controller.signal })
           .then((json) => {
             setResource(json as any);
+
             if (onLoad) {
               onLoad(json);
             }
@@ -61,7 +62,7 @@ export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
       key={resource?.id}
       initialState={{
         currentResourceId: currentResourceId || '',
-        isControlled: !currentResourceId,
+        isControlled: !!currentResourceId,
         onResourceChanged,
         orientation,
         overrides,
