@@ -1,10 +1,11 @@
 import { Behavior, ViewingDirection, ViewingHint } from '@iiif/vocabulary';
 import { Collection, Manifest } from '@iiif/presentation-3';
-import { Thumbnail, ThumbnailPanel } from './index';
+import React, { useEffect } from 'react';
 
 import { Orientation } from './types/options';
-import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { ResourceIds } from './types/types';
+import { ThumbnailPanel } from './index';
 import { useControls } from 'leva';
 import { useState } from 'react';
 
@@ -26,6 +27,11 @@ const Wrapper = () => {
   };
 
   const [resource, setResource] = useState<Manifest | Collection>();
+  const [resourceIds, setResourceIds] = useState<ResourceIds>({
+    current: '',
+    next: undefined,
+    previous: undefined,
+  });
 
   const [{ iiifContent, currentResourceId, orientation }, setIIIFContent] = useControls(() => ({
     iiifContent: {
@@ -64,48 +70,18 @@ const Wrapper = () => {
     },
   }));
 
-  const handlePrevClick = () => {
-    if (!resource) {
-      return;
-    }
-
-    let prevResourceId = '';
-    const currentResourceIndex = resource.items.findIndex((item) => {
-      return item.id === currentResourceId;
-    });
-    console.log('currentResourceIndex', currentResourceIndex);
-
-    if (currentResourceIndex > 0) {
-      prevResourceId = resource.items[currentResourceIndex - 1].id;
-    }
-
-    if (prevResourceId) {
-      setIIIFContent({
-        currentResourceId: prevResourceId,
-      });
-    }
-  };
-
-  const handleNextClick = () => {
-    if (!resource) {
-      return;
-    }
-    let nextResourceId = '';
-    const currentResourceIndex = resource.items.findIndex((item) => {
-      return item.id === currentResourceId;
-    });
-
-    if (currentResourceIndex !== -1 && currentResourceIndex !== resource.items.length - 1) {
-      nextResourceId = resource.items[currentResourceIndex + 1].id;
-
-      return setIIIFContent({
-        currentResourceId: nextResourceId,
-      });
-    }
-
-    // default to first
+  useEffect(() => {
     setIIIFContent({
-      currentResourceId: resource.items[0].id,
+      currentResourceId: resourceIds.current,
+    });
+  }, [resourceIds.current]);
+
+  const handleNavClick = (direction: 'next' | 'previous') => {
+    if (!resourceIds[direction]) {
+      return;
+    }
+    setIIIFContent({
+      currentResourceId: resourceIds[direction],
     });
   };
 
@@ -116,7 +92,6 @@ const Wrapper = () => {
         // @ts-ignore
         overrides={overrides}
         onLoad={(resource) => {
-          // console.log('onLoad', resource);
           setResource(resource);
           setOverrides({
             viewingDirection: resource.viewingDirection || ViewingDirection.LEFT_TO_RIGHT,
@@ -125,13 +100,15 @@ const Wrapper = () => {
         currentResourceId={currentResourceId}
         orientation={orientation as Orientation}
         onResourceChanged={({ resourceIds }) => {
-          setIIIFContent({
-            currentResourceId: resourceIds.current,
-          });
+          setResourceIds(resourceIds);
         }}
       />
-      <button onClick={handlePrevClick}>Prev</button>
-      <button onClick={handleNextClick}>Next</button>
+      <button onClick={() => handleNavClick('previous')} disabled={!resourceIds.previous}>
+        Prev
+      </button>
+      <button onClick={() => handleNavClick('next')} disabled={!resourceIds.next}>
+        Next
+      </button>
     </>
   );
 };
