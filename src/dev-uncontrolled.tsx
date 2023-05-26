@@ -47,13 +47,8 @@ const Wrapper = () => {
 
 function NavWrapperTest() {
   const {
-    next,
-    prev,
-    state: { isEnd, isStart },
+    state: { isEnd, isStart, next, prev },
   } = useThumbnailPanelContext();
-
-  const { handleNextClick, resourceId: nextResourceId } = next;
-  const { handlePrevClick, resourceId: prevResourceId } = prev;
 
   return (
     <div
@@ -61,10 +56,10 @@ function NavWrapperTest() {
         padding: '1rem 0',
       }}
     >
-      <button onClick={handlePrevClick} disabled={isStart} data-id={prevResourceId}>
+      <button onClick={prev?.handlePrevClick} disabled={isStart} data-id={prev?.resourceId}>
         Prev
       </button>
-      <button onClick={handleNextClick} disabled={isEnd} data-id={nextResourceId}>
+      <button onClick={next?.handleNextClick} disabled={isEnd} data-id={next?.resourceId}>
         Next
       </button>
     </div>

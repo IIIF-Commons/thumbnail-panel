@@ -12,10 +12,7 @@ interface ItemsProps {
 const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
   const {
     dispatch,
-    state: { currentResourceId, isControlled, isLoaded, orientation, resource, sequences },
-    getNavId,
-    next,
-    prev,
+    state: { currentResourceId, getNavId, isControlled, isLoaded, next, prev, orientation, resource, sequences },
   } = useThumbnailPanelContext();
 
   if (!isLoaded || !resource || !sequences || !resource?.items) {
@@ -47,7 +44,7 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
   };
 
   const handleThumbClick = (resourceId: string) => {
-    if (onResourceChanged) {
+    if (onResourceChanged && getNavId) {
       onResourceChanged({
         resourceIds: {
           current: resourceId,
@@ -67,8 +64,8 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
       thumbnail-panel=""
       data-orientation={orientation}
       data-current-resource={currentResourceId}
-      data-next-resource={next.resourceId}
-      data-previous-resource={prev.resourceId}
+      data-next-resource={next?.resourceId}
+      data-previous-resource={prev?.resourceId}
     >
       {sequences.map((group, groupIdx) => {
         return (

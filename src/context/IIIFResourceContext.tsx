@@ -5,10 +5,25 @@ import { type OnResourceChanged, type Resource } from 'src/types/types';
 
 export interface IIIFContentContext {
   currentResourceId?: string;
+  getNavId?: ({
+    currentResourceId,
+    direction,
+  }: {
+    currentResourceId: string;
+    direction: 'next' | 'prev';
+  }) => string | undefined;
   isControlled?: boolean;
   isEnd?: boolean;
   isLoaded?: boolean;
   isStart?: boolean;
+  next?: {
+    resourceId: string | undefined;
+    handleNextClick: () => void;
+  };
+  prev?: {
+    resourceId: string | undefined;
+    handlePrevClick: () => void;
+  };
   onResourceChanged?: OnResourceChanged;
   orientation?: Orientation;
   overrides?: Partial<Resource>;
@@ -57,21 +72,6 @@ const ReactContext = createContext<
   | {
       state: State;
       dispatch: Dispatch;
-      getNavId: ({
-        currentResourceId,
-        direction,
-      }: {
-        currentResourceId: string;
-        direction: 'next' | 'prev';
-      }) => string | undefined;
-      next: {
-        resourceId: string | undefined;
-        handleNextClick: () => void;
-      };
-      prev: {
-        resourceId: string | undefined;
-        handlePrevClick: () => void;
-      };
     }
   | undefined
 >(undefined);
@@ -133,32 +133,29 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   }
 
   useEffect(() => {
-    if (resource) {
-      if (!isControlled) {
-        const id = resource.items[0].id;
+    if (resource && !isControlled) {
+      const id = resource.items[0].id;
 
-        // Pass back the first resource id on load
-        onResourceChanged &&
-          onResourceChanged({
-            resourceIds: {
-              current: id,
-              next: getNavId({
-                currentResourceId: id,
-                direction: 'next',
-              }),
-              previous: getNavId({
-                currentResourceId: id,
-                direction: 'prev',
-              }),
-            },
-          });
-
-        // If current resource id is uncontrolled, update context
-        dispatch({
-          type: 'updateCurrentId',
-          id,
+      // Pass back the first resource id on load
+      onResourceChanged &&
+        onResourceChanged({
+          resourceIds: {
+            current: id,
+            next: getNavId({
+              currentResourceId: id,
+              direction: 'next',
+            }),
+            previous: getNavId({
+              currentResourceId: id,
+              direction: 'prev',
+            }),
+          },
         });
-      }
+
+      dispatch({
+        type: 'updateCurrentId',
+        id,
+      });
     }
   }, [resource?.id]);
 
@@ -237,27 +234,27 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   const value = {
     state: {
       ...state,
+      getNavId,
       isLoaded: !!resource,
       isEnd: currentResourceId ? isLastResourceItem(currentResourceId, state.resource) : undefined,
       isStart: currentResourceId ? isFirstResourceItem(currentResourceId, state.resource) : undefined,
+      next: {
+        resourceId: getNavId({
+          currentResourceId,
+          direction: 'next',
+        }),
+        handleNextClick: next,
+      },
+      prev: {
+        resourceId: getNavId({
+          currentResourceId,
+          direction: 'prev',
+        }),
+        handlePrevClick: prev,
+      },
       resource: mergedResource,
     },
     dispatch,
-    getNavId,
-    next: {
-      resourceId: getNavId({
-        currentResourceId,
-        direction: 'next',
-      }),
-      handleNextClick: next,
-    },
-    prev: {
-      resourceId: getNavId({
-        currentResourceId,
-        direction: 'prev',
-      }),
-      handlePrevClick: prev,
-    },
   };
 
   return <ReactContext.Provider value={value}>{children}</ReactContext.Provider>;
