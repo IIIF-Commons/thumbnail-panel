@@ -1,5 +1,6 @@
 import { Behavior, ViewingDirection, ViewingHint } from '@iiif/vocabulary';
 import { Collection, Manifest } from '@iiif/presentation-3';
+import { IIIFContentProvider, useThumbnailPanelContext } from './context/IIIFResourceContext';
 import React, { useEffect } from 'react';
 
 import { Orientation } from './types/options';
@@ -12,6 +13,7 @@ import { useState } from 'react';
 const Wrapper = () => {
   const url = new URL(window.location.href);
   const contentState = url.searchParams.get('iiif-content');
+  const { dispatch } = useThumbnailPanelContext();
 
   const options = {
     ...(contentState && { 'iiif-content': contentState }),
@@ -33,7 +35,7 @@ const Wrapper = () => {
     previous: undefined,
   });
 
-  const [{ iiifContent, currentResourceId, orientation }, setIIIFContent] = useControls(() => ({
+  const [{ iiifContent, currentResourceId, orientation }, setLevaControls] = useControls(() => ({
     iiifContent: {
       // https://iiif-commons.github.io/fixtures/
       options: options,
@@ -71,17 +73,33 @@ const Wrapper = () => {
   }));
 
   useEffect(() => {
-    setIIIFContent({
+    setLevaControls({
       currentResourceId: resourceIds.current,
     });
   }, [resourceIds.current]);
 
+  useEffect(() => {
+    dispatch({
+      type: 'updateOrientation',
+      orientation: orientation as Orientation,
+    });
+  }, [orientation]);
+
+  useEffect(() => {
+    dispatch({
+      type: 'updateOverrides',
+      overrides: overrides as any,
+    });
+  }, [overrides.behavior, overrides.viewingDirection, overrides.thumbnailSize]);
+
   const handleNavClick = (direction: 'next' | 'previous') => {
-    if (!resourceIds[direction]) {
+    const newId = resourceIds[direction];
+
+    if (!newId) {
       return;
     }
-    setIIIFContent({
-      currentResourceId: resourceIds[direction],
+    setLevaControls({
+      currentResourceId: newId,
     });
   };
 
@@ -115,6 +133,8 @@ const Wrapper = () => {
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <Wrapper />
+    <IIIFContentProvider>
+      <Wrapper />
+    </IIIFContentProvider>
   </React.StrictMode>
 );

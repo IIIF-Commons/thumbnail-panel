@@ -78,7 +78,6 @@ const ReactContext = createContext<
 
 /** Handle updates to Context state here */
 function reducer(state: State, action: Action) {
-  console.log('action', action);
   switch (action.type) {
     case 'initialize': {
       return action.payload;
@@ -117,15 +116,21 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   const [state, dispatch] = React.useReducer(reducer, initialState);
   const { currentResourceId, isControlled, onResourceChanged, overrides, resource, sequences } = state;
 
-  const mergedResource = useMemo(() => {
-    if (!overrides || !resource) {
-      return resource;
-    }
+  // const mergedResource = useMemo(() => {
+  //   if (!overrides || !resource) {
+  //     return resource;
+  //   }
 
+  //   const values = Object.fromEntries(Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined'));
+
+  //   return Object.assign({}, resource, values || {});
+  // }, [resource, ...Object.values(overrides || {})]);
+
+  let mergedResource = resource;
+  if (overrides && resource) {
     const values = Object.fromEntries(Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined'));
-
-    return Object.assign({}, resource, values || {});
-  }, [resource, ...Object.values(overrides || {})]);
+    mergedResource = Object.assign({}, resource, values || {});
+  }
 
   useEffect(() => {
     if (resource) {
@@ -155,7 +160,7 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
         });
       }
     }
-  }, [resource]);
+  }, [resource?.id]);
 
   useEffect(() => {
     if (currentResourceId && onResourceChanged) {

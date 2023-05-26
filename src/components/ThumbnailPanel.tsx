@@ -1,6 +1,6 @@
 import '../style.css';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 import Items from './Items';
@@ -28,7 +28,16 @@ export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
   overrides,
 }) => {
   const [error, setError] = useState(false);
-  const { state, dispatch } = useThumbnailPanelContext();
+  const { dispatch } = useThumbnailPanelContext();
+
+  useEffect(() => {
+    if (currentResourceId) {
+      dispatch({
+        type: 'updateCurrentId',
+        id: currentResourceId,
+      });
+    }
+  }, [currentResourceId]);
 
   useEffect(() => {
     if (!iiifContent) {
