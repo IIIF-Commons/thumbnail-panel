@@ -2,11 +2,12 @@ import '../style.css';
 
 import React, { useEffect, useState } from 'react';
 
-import { IIIFContentProvider, useThumbnailPanelContext } from '../context/IIIFResourceContext';
+import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 import Items from './Items';
 import { Orientation } from 'src/types/options';
 import { type OnResourceChanged, type Resource } from 'src/types/types';
 import { fetch } from '@iiif/vault-helpers/fetch';
+import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 
 interface ThumbnailPanelProps {
   children?: React.ReactNode;
@@ -19,7 +20,6 @@ interface ThumbnailPanelProps {
 }
 
 export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
-  children,
   currentResourceId,
   iiifContent,
   onLoad,
@@ -28,88 +28,48 @@ export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
   overrides,
 }) => {
   const [error, setError] = useState(false);
-  const [resource, setResource] = useState<Resource | undefined>();
+  const { state, dispatch } = useThumbnailPanelContext();
 
   useEffect(() => {
-    if (iiifContent) {
-      if (typeof iiifContent === 'string') {
-        const controller = new AbortController();
-
-        fetch(iiifContent, { signal: controller.signal })
-          .then((json) => {
-            setResource(json as any);
-
-            if (onLoad) {
-              onLoad(json);
-            }
-          })
-          .catch((e) => setError(e));
-
-        return () => {
-          controller.abort();
-        };
-      } else {
-        setResource(iiifContent);
-        if (onLoad) {
-          onLoad(iiifContent);
-        }
-      }
+    if (!iiifContent) {
+      return;
     }
+
+    const controller = new AbortController();
+
+    fetch(iiifContent, { signal: controller.signal })
+      .then((json) => {
+        // Create sequences to help group resource items
+        const sequence = createSequenceHelper();
+        // @ts-ignore
+        const [, sequences] = sequence.getManifestSequence(json, {
+          disablePaging: false,
+        });
+
+        // Update Context with ThumbnailPanel config props
+        dispatch({
+          type: 'initialize',
+          payload: {
+            currentResourceId,
+            isControlled: !!currentResourceId,
+            isLoaded: true,
+            onResourceChanged,
+            resource: json,
+            orientation,
+            overrides,
+            sequences,
+          },
+        });
+        if (onLoad) {
+          onLoad(json);
+        }
+      })
+      .catch((e) => setError(e));
+
+    return () => {
+      controller.abort();
+    };
   }, [iiifContent]);
 
-  return (
-    <IIIFContentProvider
-      key={resource?.id}
-      initialState={{
-        currentResourceId: currentResourceId || '',
-        isControlled: !!currentResourceId,
-        onResourceChanged,
-        orientation,
-        overrides,
-        resource,
-      }}
-    >
-      {/* {error && <p>Error: {error.message}</p>} */}
-      <ItemsWrapper currentResourceId={currentResourceId} orientation={orientation} overrides={overrides}>
-        <>
-          <Items onResourceChanged={onResourceChanged} />
-          {children}
-        </>
-      </ItemsWrapper>
-    </IIIFContentProvider>
-  );
+  return <Items onResourceChanged={onResourceChanged} />;
 };
-
-interface ItemsWrapperProps {
-  children: React.ReactNode;
-  currentResourceId?: string;
-  orientation: Orientation;
-  overrides?: Partial<Resource>;
-}
-
-function ItemsWrapper({ children, currentResourceId, orientation, overrides }: ItemsWrapperProps) {
-  const { dispatch } = useThumbnailPanelContext();
-
-  useEffect(() => {
-    if (currentResourceId) {
-      dispatch({ type: 'updateCurrentId', id: currentResourceId });
-    }
-  }, [currentResourceId]);
-
-  useEffect(() => {
-    dispatch({
-      type: 'updateOrientation',
-      orientation,
-    });
-  }, [orientation]);
-
-  useEffect(() => {
-    if (overrides && Object.keys(overrides).length > 0) {
-      dispatch({
-        type: 'updateOverrides',
-        overrides,
-      });
-    }
-  }, [overrides]);
-  return <>{children}</>;
-}

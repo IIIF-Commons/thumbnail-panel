@@ -2,21 +2,24 @@ import React, { ReactNode, createContext, useCallback, useContext, useEffect, us
 import { getResourceItemIndex, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
 import { Orientation } from 'src/types/options';
 import { type OnResourceChanged, type Resource } from 'src/types/types';
-import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 
 export interface IIIFContentContext {
-  currentResourceId: string;
-  isControlled: boolean;
+  currentResourceId?: string;
+  isControlled?: boolean;
   isEnd?: boolean;
   isLoaded?: boolean;
   isStart?: boolean;
   onResourceChanged?: OnResourceChanged;
-  orientation: Orientation;
+  orientation?: Orientation;
   overrides?: Partial<Resource>;
-  resource?: Resource;
+  resource?: Resource | undefined;
   sequences?: number[][];
 }
 type Action =
+  | {
+      type: 'initialize';
+      payload: Partial<IIIFContentContext>;
+    }
   | {
       type: 'updateCurrentId';
       id: string;
@@ -38,25 +41,15 @@ type State = IIIFContentContext;
 
 export interface IIIFContentProviderProps {
   children: ReactNode;
-  initialState: {
-    currentResourceId: string;
-    isControlled: boolean;
-    isLoaded?: boolean;
-    onResourceChanged?: OnResourceChanged;
-    orientation: Orientation;
-    overrides?: Partial<Resource>;
-    resource?: Resource;
-  };
+  initialState?: Partial<IIIFContentContext>;
 }
 
 const defaultState: IIIFContentContext = {
   currentResourceId: '',
-  isControlled: true,
   isEnd: false,
   isLoaded: false,
   isStart: true,
   orientation: 'vertical',
-  resource: undefined,
   sequences: [],
 };
 
@@ -83,17 +76,13 @@ const ReactContext = createContext<
   | undefined
 >(undefined);
 
-function useThumbnailPanelContext() {
-  const context = useContext(ReactContext);
-  if (context === undefined) {
-    throw new Error('useThumbnailPanelContext must be used within a IIIFContentProvider');
-  }
-  return context;
-}
-
 /** Handle updates to Context state here */
 function reducer(state: State, action: Action) {
+  console.log('action', action);
   switch (action.type) {
+    case 'initialize': {
+      return action.payload;
+    }
     case 'updateCurrentId': {
       return {
         ...state,
@@ -140,17 +129,6 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
 
   useEffect(() => {
     if (resource) {
-      const sequence = createSequenceHelper();
-      // @ts-ignore
-      const [items, resourceSequences] = sequence.getManifestSequence(resource, {
-        disablePaging: false,
-      });
-
-      dispatch({
-        type: 'updateSequences',
-        sequences: resourceSequences,
-      });
-
       if (!isControlled) {
         const id = resource.items[0].id;
 
@@ -170,7 +148,7 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
             },
           });
 
-        // If current resource id is controlled, update context
+        // If current resource id is uncontrolled, update context
         dispatch({
           type: 'updateCurrentId',
           id,
@@ -223,7 +201,7 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   };
 
   const getNavId = useCallback(
-    ({ currentResourceId, direction }: { currentResourceId: string; direction: 'next' | 'prev' }) => {
+    ({ currentResourceId, direction }: { currentResourceId?: string; direction: 'next' | 'prev' }) => {
       if (!currentResourceId || !resource || !sequences) {
         return;
       }
@@ -255,8 +233,8 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
     state: {
       ...state,
       isLoaded: !!resource,
-      isEnd: isLastResourceItem(state.currentResourceId, state.resource),
-      isStart: isFirstResourceItem(state.currentResourceId, state.resource),
+      isEnd: currentResourceId ? isLastResourceItem(currentResourceId, state.resource) : undefined,
+      isStart: currentResourceId ? isFirstResourceItem(currentResourceId, state.resource) : undefined,
       resource: mergedResource,
     },
     dispatch,
@@ -278,6 +256,14 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   };
 
   return <ReactContext.Provider value={value}>{children}</ReactContext.Provider>;
+}
+
+function useThumbnailPanelContext() {
+  const context = useContext(ReactContext);
+  if (context === undefined) {
+    throw new Error('useThumbnailPanelContext must be used within a IIIFContentProvider');
+  }
+  return context;
 }
 
 export { IIIFContentProvider, ReactContext, useThumbnailPanelContext };

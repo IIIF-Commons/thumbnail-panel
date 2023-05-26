@@ -56,7 +56,7 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
         },
       });
     }
-    if (isControlled) {
+    if (!isControlled) {
       dispatch({ type: 'updateCurrentId', id: resourceId });
     }
   };
