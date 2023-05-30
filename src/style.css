@@ -21,7 +21,7 @@
   /* border: 2px solid transparent; */
 }
 
-[thumbnail-item] > button {
+[thumbnail-item] button {
   margin: 0;
   padding: 0;
   background: transparent;
@@ -29,18 +29,18 @@
   cursor: pointer;
 }
 
-[thumbnail-item] > button > figure {
+[thumbnail-item] button > figure {
   margin: 0;
 }
 
-[thumbnail-item] > button > figure > div > img {
+[thumbnail-item] button > figure > div > img {
   width: 100%;
   height: 100%;
   object-position: 50% 50%;
   object-fit: contain;
 }
 
-[thumbnail-item] > button > figure > figcaption {
+[thumbnail-item] button > figure > figcaption {
   /* text-align: left; */
   /* padding: 0.25rem 0 0.25rem 0.25rem;
   font-size: 0.75rem; */
