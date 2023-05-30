@@ -64,6 +64,52 @@ const Wrapper = () => {
     },
   }));
 
+  const handlePrevClick = () => {
+    if (!resource) {
+      return;
+    }
+
+    let prevResourceId = '';
+    const currentResourceIndex = resource.items.findIndex((item) => {
+      return item.id === currentResourceId;
+    });
+    console.log('currentResourceIndex', currentResourceIndex);
+
+    if (currentResourceIndex > 0) {
+      prevResourceId = resource.items[currentResourceIndex - 1].id;
+    }
+
+    if (prevResourceId) {
+      setIIIFContent({
+        currentResourceId: prevResourceId,
+      });
+    }
+  };
+
+  const handleNextClick = () => {
+    if (!resource) {
+      return;
+    }
+    let nextResourceId = '';
+    const currentResourceIndex = resource.items.findIndex((item) => {
+      return item.id === currentResourceId;
+    });
+    console.log('currentResourceIndex', currentResourceIndex);
+
+    if (currentResourceIndex !== -1 && currentResourceIndex !== resource.items.length - 1) {
+      nextResourceId = resource.items[currentResourceIndex + 1].id;
+
+      return setIIIFContent({
+        currentResourceId: nextResourceId,
+      });
+    }
+
+    // default to first
+    setIIIFContent({
+      currentResourceId: resource.items[0].id,
+    });
+  };
+
   return (
     <>
       <ThumbnailPanel
@@ -80,59 +126,13 @@ const Wrapper = () => {
         currentResourceId={currentResourceId}
         orientation={orientation as Orientation}
         onResourceChanged={(resourceId?: string) => {
-          // console.log(resourceId);
           setIIIFContent({
             currentResourceId: resourceId,
           });
         }}
       />
-      <button
-        onClick={() => {
-          let prevResourceId: string | undefined;
-
-          if (resource) {
-            const currentResourceIndex = resource.items.findIndex((item) => {
-              return item.id === currentResourceId;
-            });
-
-            if (currentResourceIndex !== -1 && currentResourceIndex !== 0) {
-              prevResourceId = resource.items[currentResourceIndex - 1].id;
-            }
-
-            setIIIFContent({
-              currentResourceId: prevResourceId as string,
-            });
-          }
-        }}
-      >
-        Prev
-      </button>
-      <button
-        onClick={() => {
-          let nextResourceId: string | undefined;
-
-          if (resource) {
-            const currentResourceIndex = resource.items.findIndex((item) => {
-              return item.id === currentResourceId;
-            });
-
-            if (currentResourceIndex !== -1 && currentResourceIndex !== resource.items.length - 1) {
-              nextResourceId = resource.items[currentResourceIndex + 1].id;
-
-              setIIIFContent({
-                currentResourceId: nextResourceId as string,
-              });
-            } else {
-              // default to first
-              setIIIFContent({
-                currentResourceId: resource.items[0].id as string,
-              });
-            }
-          }
-        }}
-      >
-        Next
-      </button>
+      <button onClick={handlePrevClick}>Prev</button>
+      <button onClick={handleNextClick}>Next</button>
     </>
   );
 };

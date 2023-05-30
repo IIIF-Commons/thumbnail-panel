@@ -1,41 +1,126 @@
-import * as Presentation3 from '@iiif/presentation-3';
-
 import React, { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
-
+import { getNavResourceItemId, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
 import { Orientation } from 'src/types/options';
-import { fetch } from '@iiif/vault-helpers/fetch';
+import { type OnResourceChanged, type Resource } from 'src/types/types';
+import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 
-interface IIIFContentContext {
-  currentResourceId: string | undefined;
-  error: string | any | null;
-  isLoaded: boolean;
+export interface IIIFContentContext {
+  currentResourceId: string;
+  isControlled: boolean;
+  isEnd?: boolean;
+  isLoaded?: boolean;
+  isStart?: boolean;
+  onResourceChanged?: OnResourceChanged;
   orientation: Orientation;
-  resource?: Presentation3.Manifest | Presentation3.Collection;
+  overrides?: Partial<Resource>;
+  resource?: Resource;
+  sequences?: number[][];
+}
+type Action =
+  | {
+      type: 'updateCurrentId';
+      id: string;
+    }
+  | {
+      type: 'updateOrientation';
+      orientation: Orientation;
+    }
+  | {
+      type: 'updateOverrides';
+      overrides: Partial<Resource>;
+    }
+  | {
+      type: 'updateSequences';
+      sequences: number[][];
+    };
+type Dispatch = (action: Action) => void;
+type State = IIIFContentContext;
+
+export interface IIIFContentProviderProps {
+  children: ReactNode;
+  initialState: {
+    currentResourceId: string;
+    isControlled: boolean;
+    isLoaded?: boolean;
+    onResourceChanged?: OnResourceChanged;
+    orientation: Orientation;
+    overrides?: Partial<Resource>;
+    resource?: Resource;
+  };
 }
 
-export const ReactContext = createContext<IIIFContentContext>({
-  currentResourceId: undefined,
-  error: null,
+const defaultState: IIIFContentContext = {
+  currentResourceId: '',
+  isControlled: true,
+  isEnd: false,
   isLoaded: false,
+  isStart: true,
   orientation: 'vertical',
   resource: undefined,
-});
+  sequences: [],
+};
 
-export function useThumbnailPanelContext() {
-  return useContext(ReactContext);
+const ReactContext = createContext<
+  | {
+      state: State;
+      dispatch: Dispatch;
+      next: {
+        resourceId: string | undefined;
+        handleNextClick: () => void;
+      };
+      prev: {
+        resourceId: string | undefined;
+        handlePrevClick: () => void;
+      };
+    }
+  | undefined
+>(undefined);
+
+function useThumbnailPanelContext() {
+  const context = useContext(ReactContext);
+  if (context === undefined) {
+    throw new Error('useThumbnailPanelContext must be used within a IIIFContentProvider');
+  }
+  return context;
 }
 
-export function IIIFContentProvider(props: {
-  resource: string | any;
-  children: ReactNode;
-  overrides?: Partial<Presentation3.Manifest | Presentation3.Collection>;
-  currentResourceId: string | undefined;
-  orientation: Orientation;
-  onLoad?: (resource?: Presentation3.Manifest | Presentation3.Collection) => void;
-  onResourceChanged?: (resourceId: string) => void;
-}) {
-  const { currentResourceId, orientation, onLoad, overrides } = props;
-  const [resource, setResource] = useState<Presentation3.Manifest | Presentation3.Collection>();
+/** Handle updates to Context state here */
+function reducer(state: State, action: Action) {
+  switch (action.type) {
+    case 'updateCurrentId': {
+      return {
+        ...state,
+        currentResourceId: action.id,
+      };
+    }
+    case 'updateOrientation': {
+      return {
+        ...state,
+        orientation: action.orientation,
+      };
+    }
+    case 'updateOverrides': {
+      return {
+        ...state,
+        overrides: { ...action.overrides },
+      };
+    }
+    case 'updateSequences': {
+      return {
+        ...state,
+        sequences: action.sequences,
+      };
+    }
+    default: {
+      throw new Error(`Unhandled action type`);
+    }
+  }
+}
+
+function IIIFContentProvider({ initialState = defaultState, children }: IIIFContentProviderProps) {
+  const [state, dispatch] = React.useReducer(reducer, initialState);
+  const { currentResourceId, isControlled, onResourceChanged, overrides, resource, sequences } = state;
+
   const mergedResource = useMemo(() => {
     if (!overrides || !resource) {
       return resource;
@@ -45,41 +130,100 @@ export function IIIFContentProvider(props: {
 
     return Object.assign({}, resource, values || {});
   }, [resource, ...Object.values(overrides || {})]);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!props.resource) {
-      return;
-    }
+    if (resource && isControlled) {
+      const sequence = createSequenceHelper();
+      // @ts-ignore
+      const [items, resourceSequences] = sequence.getManifestSequence(resource, {
+        disablePaging: false,
+      });
 
-    // if it's a url to a manifest
-    if (typeof props.resource === 'string') {
-      const controller = new AbortController();
+      dispatch({
+        type: 'updateSequences',
+        sequences: resourceSequences,
+      });
 
-      fetch(props.resource, { signal: controller.signal })
-        .then((json) => {
-          setResource(json as any);
-          if (onLoad) {
-            onLoad(json);
-          }
-        })
-        .catch((e) => setError(e));
+      if (isControlled) {
+        const id = resource.items[0].id;
 
-      return () => {
-        controller.abort();
-      };
-    } else {
-      // it's an id of a specific resource within a manifest
-      setResource(props.resource);
-      if (onLoad) {
-        onLoad(props.resource);
+        // Pass back the first resource id on load
+        onResourceChanged && onResourceChanged(id);
+
+        // If current resource id is controlled, update context
+        dispatch({
+          type: 'updateCurrentId',
+          id,
+        });
       }
     }
-  }, [props.resource]);
+  }, [resource]);
 
-  const value = useMemo(() => {
-    return { resource: mergedResource, error, isLoaded: !!resource, orientation, currentResourceId };
-  }, [mergedResource, error, orientation, currentResourceId]);
+  useEffect(() => {
+    if (currentResourceId && onResourceChanged) {
+      onResourceChanged(currentResourceId);
+    }
+  }, [currentResourceId]);
 
-  return <ReactContext.Provider value={value}>{props.children}</ReactContext.Provider>;
+  const next = () => {
+    const nextResourceId = getNavResourceItemId({
+      currentResourceId,
+      direction: 'next',
+      resource,
+      sequences,
+    });
+
+    nextResourceId &&
+      dispatch({
+        type: 'updateCurrentId',
+        id: nextResourceId,
+      });
+  };
+
+  const prev = () => {
+    const prevResourceId = getNavResourceItemId({
+      currentResourceId,
+      direction: 'prev',
+      resource,
+      sequences,
+    });
+    prevResourceId &&
+      dispatch({
+        type: 'updateCurrentId',
+        id: prevResourceId,
+      });
+  };
+
+  const value = {
+    state: {
+      ...state,
+      isLoaded: !!resource,
+      isEnd: isLastResourceItem(state.currentResourceId, state.resource),
+      isStart: isFirstResourceItem(state.currentResourceId, state.resource),
+      resource: mergedResource,
+    },
+    dispatch,
+    next: {
+      resourceId: getNavResourceItemId({
+        currentResourceId,
+        direction: 'next',
+        resource,
+        sequences,
+      }),
+      handleNextClick: next,
+    },
+    prev: {
+      resourceId: getNavResourceItemId({
+        currentResourceId,
+        direction: 'prev',
+        resource,
+        sequences,
+      }),
+      handlePrevClick: prev,
+    },
+  };
+
+  return <ReactContext.Provider value={value}>{children}</ReactContext.Provider>;
 }
+
+export { IIIFContentProvider, ReactContext, useThumbnailPanelContext };
