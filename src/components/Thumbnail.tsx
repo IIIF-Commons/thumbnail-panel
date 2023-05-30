@@ -39,7 +39,6 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
         data-testid="thumbnail-button"
         onClick={() => {
           if (onClick) {
-            console.log('resource.id', resource?.id);
             onClick(resource?.id);
           }
         }}

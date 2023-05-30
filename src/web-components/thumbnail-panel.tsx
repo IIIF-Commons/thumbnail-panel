@@ -1,6 +1,8 @@
-import register from '../lib/preact-custom-element/preact-custom-element';
 import React, { useLayoutEffect, useRef } from 'react';
+
+import { IIIFContentProvider } from '../context/IIIFResourceContext';
 import { ThumbnailPanel } from '../components/ThumbnailPanel';
+import register from '../lib/preact-custom-element/preact-custom-element';
 import { useCustomEvent } from './helpers/use-custom-event';
 
 interface ThumbnailPanelAttributes {
@@ -25,9 +27,13 @@ function ThumbnailPanelWebComponent(props: ThumbnailPanelProps & ThumbnailPanelA
     }
   }, []);
 
-  const handleOnChange = useCustomEvent(webComponent, 'resource-changed', (e) => ({ resourceId: e }));
+  const handleOnChange = useCustomEvent(webComponent, 'resource-changed', (e) => e);
 
-  return <ThumbnailPanel {...props} onResourceChanged={handleOnChange} orientation={'vertical'} />;
+  return (
+    <IIIFContentProvider>
+      <ThumbnailPanel {...props} onResourceChanged={handleOnChange} orientation={'vertical'} />
+    </IIIFContentProvider>
+  );
 }
 
 const thumbnailPanelProps = ['iiif-content', 'current-resource-id'];

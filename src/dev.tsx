@@ -1,16 +1,19 @@
 import { Behavior, ViewingDirection, ViewingHint } from '@iiif/vocabulary';
 import { Collection, Manifest } from '@iiif/presentation-3';
-import { Thumbnail, ThumbnailPanel } from './index';
+import { IIIFContentProvider, useThumbnailPanelContext } from './context/IIIFResourceContext';
+import React, { useEffect } from 'react';
 
 import { Orientation } from './types/options';
-import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { ResourceIds } from './types/types';
+import { ThumbnailPanel } from './index';
 import { useControls } from 'leva';
 import { useState } from 'react';
 
 const Wrapper = () => {
   const url = new URL(window.location.href);
   const contentState = url.searchParams.get('iiif-content');
+  const { dispatch } = useThumbnailPanelContext();
 
   const options = {
     ...(contentState && { 'iiif-content': contentState }),
@@ -26,8 +29,13 @@ const Wrapper = () => {
   };
 
   const [resource, setResource] = useState<Manifest | Collection>();
+  const [resourceIds, setResourceIds] = useState<ResourceIds>({
+    current: '',
+    next: undefined,
+    previous: undefined,
+  });
 
-  const [{ iiifContent, currentResourceId, orientation }, setIIIFContent] = useControls(() => ({
+  const [{ iiifContent, currentResourceId, orientation }, setLevaControls] = useControls(() => ({
     iiifContent: {
       // https://iiif-commons.github.io/fixtures/
       options: options,
@@ -64,49 +72,34 @@ const Wrapper = () => {
     },
   }));
 
-  const handlePrevClick = () => {
-    if (!resource) {
+  useEffect(() => {
+    setLevaControls({
+      currentResourceId: resourceIds.current,
+    });
+  }, [resourceIds.current]);
+
+  useEffect(() => {
+    dispatch({
+      type: 'updateOrientation',
+      orientation: orientation as Orientation,
+    });
+  }, [orientation]);
+
+  useEffect(() => {
+    dispatch({
+      type: 'updateOverrides',
+      overrides: overrides as any,
+    });
+  }, [overrides.behavior, overrides.viewingDirection, overrides.thumbnailSize]);
+
+  const handleNavClick = (direction: 'next' | 'previous') => {
+    const newId = resourceIds[direction];
+
+    if (!newId) {
       return;
     }
-
-    let prevResourceId = '';
-    const currentResourceIndex = resource.items.findIndex((item) => {
-      return item.id === currentResourceId;
-    });
-    console.log('currentResourceIndex', currentResourceIndex);
-
-    if (currentResourceIndex > 0) {
-      prevResourceId = resource.items[currentResourceIndex - 1].id;
-    }
-
-    if (prevResourceId) {
-      setIIIFContent({
-        currentResourceId: prevResourceId,
-      });
-    }
-  };
-
-  const handleNextClick = () => {
-    if (!resource) {
-      return;
-    }
-    let nextResourceId = '';
-    const currentResourceIndex = resource.items.findIndex((item) => {
-      return item.id === currentResourceId;
-    });
-    console.log('currentResourceIndex', currentResourceIndex);
-
-    if (currentResourceIndex !== -1 && currentResourceIndex !== resource.items.length - 1) {
-      nextResourceId = resource.items[currentResourceIndex + 1].id;
-
-      return setIIIFContent({
-        currentResourceId: nextResourceId,
-      });
-    }
-
-    // default to first
-    setIIIFContent({
-      currentResourceId: resource.items[0].id,
+    setLevaControls({
+      currentResourceId: newId,
     });
   };
 
@@ -117,7 +110,6 @@ const Wrapper = () => {
         // @ts-ignore
         overrides={overrides}
         onLoad={(resource) => {
-          // console.log('onLoad', resource);
           setResource(resource);
           setOverrides({
             viewingDirection: resource.viewingDirection || ViewingDirection.LEFT_TO_RIGHT,
@@ -125,20 +117,24 @@ const Wrapper = () => {
         }}
         currentResourceId={currentResourceId}
         orientation={orientation as Orientation}
-        onResourceChanged={(resourceId?: string) => {
-          setIIIFContent({
-            currentResourceId: resourceId,
-          });
+        onResourceChanged={({ resourceIds }) => {
+          setResourceIds(resourceIds);
         }}
       />
-      <button onClick={handlePrevClick}>Prev</button>
-      <button onClick={handleNextClick}>Next</button>
+      <button onClick={() => handleNavClick('previous')} disabled={!resourceIds.previous}>
+        Prev
+      </button>
+      <button onClick={() => handleNavClick('next')} disabled={!resourceIds.next}>
+        Next
+      </button>
     </>
   );
 };
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <Wrapper />
+    <IIIFContentProvider>
+      <Wrapper />
+    </IIIFContentProvider>
   </React.StrictMode>
 );

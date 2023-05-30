@@ -1,22 +1,40 @@
-import React, { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { getNavResourceItemId, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
+import React, { ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
+import { getResourceItemIndex, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
 import { Orientation } from 'src/types/options';
 import { type OnResourceChanged, type Resource } from 'src/types/types';
-import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 
 export interface IIIFContentContext {
-  currentResourceId: string;
-  isControlled: boolean;
+  currentResourceId?: string;
+  getNavId?: ({
+    currentResourceId,
+    direction,
+  }: {
+    currentResourceId: string;
+    direction: 'next' | 'prev';
+  }) => string | undefined;
+  isControlled?: boolean;
   isEnd?: boolean;
   isLoaded?: boolean;
   isStart?: boolean;
+  next?: {
+    resourceId: string | undefined;
+    handleNextClick: () => void;
+  };
+  prev?: {
+    resourceId: string | undefined;
+    handlePrevClick: () => void;
+  };
   onResourceChanged?: OnResourceChanged;
-  orientation: Orientation;
+  orientation?: Orientation;
   overrides?: Partial<Resource>;
-  resource?: Resource;
+  resource?: Resource | undefined;
   sequences?: number[][];
 }
 type Action =
+  | {
+      type: 'initialize';
+      payload: Partial<IIIFContentContext>;
+    }
   | {
       type: 'updateCurrentId';
       id: string;
@@ -38,25 +56,15 @@ type State = IIIFContentContext;
 
 export interface IIIFContentProviderProps {
   children: ReactNode;
-  initialState: {
-    currentResourceId: string;
-    isControlled: boolean;
-    isLoaded?: boolean;
-    onResourceChanged?: OnResourceChanged;
-    orientation: Orientation;
-    overrides?: Partial<Resource>;
-    resource?: Resource;
-  };
+  initialState?: Partial<IIIFContentContext>;
 }
 
 const defaultState: IIIFContentContext = {
   currentResourceId: '',
-  isControlled: true,
   isEnd: false,
   isLoaded: false,
   isStart: true,
   orientation: 'vertical',
-  resource: undefined,
   sequences: [],
 };
 
@@ -64,29 +72,16 @@ const ReactContext = createContext<
   | {
       state: State;
       dispatch: Dispatch;
-      next: {
-        resourceId: string | undefined;
-        handleNextClick: () => void;
-      };
-      prev: {
-        resourceId: string | undefined;
-        handlePrevClick: () => void;
-      };
     }
   | undefined
 >(undefined);
 
-function useThumbnailPanelContext() {
-  const context = useContext(ReactContext);
-  if (context === undefined) {
-    throw new Error('useThumbnailPanelContext must be used within a IIIFContentProvider');
-  }
-  return context;
-}
-
 /** Handle updates to Context state here */
 function reducer(state: State, action: Action) {
   switch (action.type) {
+    case 'initialize': {
+      return action.payload;
+    }
     case 'updateCurrentId': {
       return {
         ...state,
@@ -121,56 +116,71 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   const [state, dispatch] = React.useReducer(reducer, initialState);
   const { currentResourceId, isControlled, onResourceChanged, overrides, resource, sequences } = state;
 
-  const mergedResource = useMemo(() => {
-    if (!overrides || !resource) {
-      return resource;
-    }
+  // const mergedResource = useMemo(() => {
+  //   if (!overrides || !resource) {
+  //     return resource;
+  //   }
 
+  //   const values = Object.fromEntries(Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined'));
+
+  //   return Object.assign({}, resource, values || {});
+  // }, [resource, ...Object.values(overrides || {})]);
+
+  let mergedResource = resource;
+  if (overrides && resource) {
     const values = Object.fromEntries(Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined'));
-
-    return Object.assign({}, resource, values || {});
-  }, [resource, ...Object.values(overrides || {})]);
+    mergedResource = Object.assign({}, resource, values || {});
+  }
 
   useEffect(() => {
-    if (resource && isControlled) {
-      const sequence = createSequenceHelper();
-      // @ts-ignore
-      const [items, resourceSequences] = sequence.getManifestSequence(resource, {
-        disablePaging: false,
-      });
+    if (resource && !isControlled) {
+      const id = resource.items[0].id;
+
+      // Pass back the first resource id on load
+      onResourceChanged &&
+        onResourceChanged({
+          resourceIds: {
+            current: id,
+            next: getNavId({
+              currentResourceId: id,
+              direction: 'next',
+            }),
+            previous: getNavId({
+              currentResourceId: id,
+              direction: 'prev',
+            }),
+          },
+        });
 
       dispatch({
-        type: 'updateSequences',
-        sequences: resourceSequences,
+        type: 'updateCurrentId',
+        id,
       });
-
-      if (isControlled) {
-        const id = resource.items[0].id;
-
-        // Pass back the first resource id on load
-        onResourceChanged && onResourceChanged(id);
-
-        // If current resource id is controlled, update context
-        dispatch({
-          type: 'updateCurrentId',
-          id,
-        });
-      }
     }
-  }, [resource]);
+  }, [resource?.id]);
 
   useEffect(() => {
     if (currentResourceId && onResourceChanged) {
-      onResourceChanged(currentResourceId);
+      onResourceChanged({
+        resourceIds: {
+          current: currentResourceId,
+          next: getNavId({
+            currentResourceId,
+            direction: 'next',
+          }),
+          previous: getNavId({
+            currentResourceId,
+            direction: 'prev',
+          }),
+        },
+      });
     }
   }, [currentResourceId]);
 
   const next = () => {
-    const nextResourceId = getNavResourceItemId({
+    const nextResourceId = getNavId({
       currentResourceId,
       direction: 'next',
-      resource,
-      sequences,
     });
 
     nextResourceId &&
@@ -181,11 +191,9 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   };
 
   const prev = () => {
-    const prevResourceId = getNavResourceItemId({
+    const prevResourceId = getNavId({
       currentResourceId,
       direction: 'prev',
-      resource,
-      sequences,
     });
     prevResourceId &&
       dispatch({
@@ -194,36 +202,70 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
       });
   };
 
+  const getNavId = useCallback(
+    ({ currentResourceId, direction }: { currentResourceId?: string; direction: 'next' | 'prev' }) => {
+      if (!currentResourceId || !resource || !sequences) {
+        return;
+      }
+
+      const sequencesIdx = sequences.findIndex((group) => {
+        const currentResourceIndex = getResourceItemIndex(currentResourceId, resource);
+        return group.includes(currentResourceIndex);
+      });
+
+      if (direction === 'next' && sequencesIdx === sequences.length - 1) {
+        return;
+      }
+      if (direction === 'prev' && sequencesIdx === 0) {
+        return;
+      }
+
+      try {
+        const sequenceIndex = sequences[direction === 'next' ? sequencesIdx + 1 : sequencesIdx - 1][0];
+        const resourceId = resource.items[sequenceIndex].id;
+        return resourceId;
+      } catch (e) {
+        return '';
+      }
+    },
+    [resource, sequences]
+  );
+
   const value = {
     state: {
       ...state,
+      getNavId,
       isLoaded: !!resource,
-      isEnd: isLastResourceItem(state.currentResourceId, state.resource),
-      isStart: isFirstResourceItem(state.currentResourceId, state.resource),
+      isEnd: currentResourceId ? isLastResourceItem(currentResourceId, state.resource) : undefined,
+      isStart: currentResourceId ? isFirstResourceItem(currentResourceId, state.resource) : undefined,
+      next: {
+        resourceId: getNavId({
+          currentResourceId,
+          direction: 'next',
+        }),
+        handleNextClick: next,
+      },
+      prev: {
+        resourceId: getNavId({
+          currentResourceId,
+          direction: 'prev',
+        }),
+        handlePrevClick: prev,
+      },
       resource: mergedResource,
     },
     dispatch,
-    next: {
-      resourceId: getNavResourceItemId({
-        currentResourceId,
-        direction: 'next',
-        resource,
-        sequences,
-      }),
-      handleNextClick: next,
-    },
-    prev: {
-      resourceId: getNavResourceItemId({
-        currentResourceId,
-        direction: 'prev',
-        resource,
-        sequences,
-      }),
-      handlePrevClick: prev,
-    },
   };
 
   return <ReactContext.Provider value={value}>{children}</ReactContext.Provider>;
+}
+
+function useThumbnailPanelContext() {
+  const context = useContext(ReactContext);
+  if (context === undefined) {
+    throw new Error('useThumbnailPanelContext must be used within a IIIFContentProvider');
+  }
+  return context;
 }
 
 export { IIIFContentProvider, ReactContext, useThumbnailPanelContext };

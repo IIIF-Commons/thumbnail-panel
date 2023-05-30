@@ -29,35 +29,4 @@ const getResourceItemIndex = (currentResourceId: string, resource: GuardedResour
   return currentResourceIndex;
 };
 
-const getNavResourceItemId = ({
-  currentResourceId,
-  direction,
-  resource,
-  sequences,
-}: {
-  currentResourceId: string;
-  direction: 'next' | 'prev';
-  resource: GuardedResource;
-  sequences: GuardedSequences;
-}) => {
-  if (!currentResourceId || !resource || !sequences) {
-    return;
-  }
-
-  const sequencesIdx = sequences.findIndex((group) => {
-    const currentResourceIndex = getResourceItemIndex(currentResourceId, resource);
-    return group.includes(currentResourceIndex);
-  });
-
-  if (direction === 'next' && sequencesIdx === sequences.length - 1) {
-    return;
-  }
-  if (direction === 'prev' && sequencesIdx === 0) {
-    return;
-  }
-
-  const resourceId = resource.items[sequences[direction === 'next' ? sequencesIdx + 1 : sequencesIdx - 1][0]].id;
-  return resourceId;
-};
-
-export { getNavResourceItemId, getResourceItemIndex, isFirstResourceItem, isLastResourceItem };
+export { getResourceItemIndex, isFirstResourceItem, isLastResourceItem };

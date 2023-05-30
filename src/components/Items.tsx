@@ -1,10 +1,8 @@
 import '../style.css';
 
-import React, { useMemo } from 'react';
-
 import { OnResourceChanged } from 'src/types/types';
+import React from 'react';
 import { Thumbnail } from './Thumbnail';
-import { getValue } from '@iiif/vault-helpers';
 import { useThumbnailPanelContext } from '../context/IIIFResourceContext';
 
 interface ItemsProps {
@@ -14,7 +12,7 @@ interface ItemsProps {
 const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
   const {
     dispatch,
-    state: { currentResourceId, isControlled, isLoaded, orientation, resource, sequences },
+    state: { currentResourceId, getNavId, isControlled, isLoaded, next, prev, orientation, resource, sequences },
   } = useThumbnailPanelContext();
 
   if (!isLoaded || !resource || !sequences || !resource?.items) {
@@ -46,21 +44,30 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
   };
 
   const handleThumbClick = (resourceId: string) => {
-    if (onResourceChanged) {
-      onResourceChanged(resourceId);
+    if (onResourceChanged && getNavId) {
+      onResourceChanged({
+        resourceIds: {
+          current: resourceId,
+          next: getNavId({ currentResourceId: resourceId, direction: 'next' }),
+          previous: getNavId({ currentResourceId: resourceId, direction: 'prev' }),
+        },
+      });
     }
-    if (isControlled) {
+    if (!isControlled) {
       dispatch({ type: 'updateCurrentId', id: resourceId });
     }
   };
 
   return (
-    <div dir={dir} thumbnail-panel="" data-orientation={orientation}>
-      <h3>{getValue(resource.label)}</h3>
-      <span>{orientation}</span>
-
+    <div
+      dir={dir}
+      thumbnail-panel=""
+      data-orientation={orientation}
+      data-current-resource={currentResourceId}
+      data-next-resource={next?.resourceId}
+      data-previous-resource={prev?.resourceId}
+    >
       {sequences.map((group, groupIdx) => {
-        // console.log('group', group);
         return (
           <div thumbnail-group="" key={groupIdx} data-selected={isCurrentGroup(groupIdx)}>
             {group.map((idx, itemIdx) => (
@@ -82,14 +89,6 @@ const Items: React.FC<ItemsProps> = ({ onResourceChanged }) => {
           </div>
         );
       })}
-
-      {/* <p>{resource.behavior}</p>
-      <p>{resource.viewingDirection || 'left-to-right'}</p>
-      {resource?.items.map((item, index) => (
-        <>
-          <Thumbnail key={index} item={item} />
-        </>
-      ))} */}
     </div>
   );
 };
