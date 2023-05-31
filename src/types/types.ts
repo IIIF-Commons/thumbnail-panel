@@ -9,3 +9,5 @@ export type ResourceIds = {
   next: string | undefined;
   previous: string | undefined;
 };
+
+export type Sequences = number[][];

@@ -13,7 +13,7 @@ import { useState } from 'react';
 const Wrapper = () => {
   const url = new URL(window.location.href);
   const contentState = url.searchParams.get('iiif-content');
-  const { dispatch } = useThumbnailPanelContext();
+  const { dispatch, state } = useThumbnailPanelContext();
 
   const options = {
     ...(contentState && { 'iiif-content': contentState }),
@@ -86,10 +86,12 @@ const Wrapper = () => {
   }, [orientation]);
 
   useEffect(() => {
-    dispatch({
-      type: 'updateOverrides',
-      overrides: overrides as any,
-    });
+    if (state.resource) {
+      dispatch({
+        type: 'updateOverrides',
+        overrides: overrides as any,
+      });
+    }
   }, [overrides.behavior, overrides.viewingDirection, overrides.thumbnailSize]);
 
   const handleNavClick = (direction: 'next' | 'previous') => {
