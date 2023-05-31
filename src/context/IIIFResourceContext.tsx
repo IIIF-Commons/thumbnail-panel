@@ -1,10 +1,5 @@
 import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
-import {
-  getResourceItemIndex,
-  isFirstResourceItem,
-  isLastResourceItem,
-  mergeOverridesWithResource,
-} from '../lib/helpers';
+import { getIdInSequence, isFirstResourceItem, isLastResourceItem, mergeOverridesWithResource } from '../lib/helpers';
 import { Orientation } from 'src/types/options';
 import { Sequences, type OnResourceChanged, type Resource } from 'src/types/types';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
@@ -140,25 +135,28 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   const [state, dispatch] = React.useReducer(reducer, initialState);
   const { currentResourceId, isControlled, onResourceChanged, overrides, resource, sequences } = state;
 
+  const handleResourceChanged = (id: string) => {
+    return {
+      resourceIds: {
+        current: id,
+        next: getNavId({
+          currentResourceId: id,
+          direction: 'next',
+        }),
+        previous: getNavId({
+          currentResourceId: id,
+          direction: 'prev',
+        }),
+      },
+    };
+  };
+
   useEffect(() => {
     if (resource && !isControlled) {
       const id = resource.items[0].id;
 
       // Pass back the first resource id on load
-      onResourceChanged &&
-        onResourceChanged({
-          resourceIds: {
-            current: id,
-            next: getNavId({
-              currentResourceId: id,
-              direction: 'next',
-            }),
-            previous: getNavId({
-              currentResourceId: id,
-              direction: 'prev',
-            }),
-          },
-        });
+      onResourceChanged && onResourceChanged(handleResourceChanged(id));
 
       dispatch({
         type: 'updateCurrentId',
@@ -169,19 +167,7 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
 
   useEffect(() => {
     if (currentResourceId && onResourceChanged) {
-      onResourceChanged({
-        resourceIds: {
-          current: currentResourceId,
-          next: getNavId({
-            currentResourceId,
-            direction: 'next',
-          }),
-          previous: getNavId({
-            currentResourceId,
-            direction: 'prev',
-          }),
-        },
-      });
+      onResourceChanged(handleResourceChanged(currentResourceId));
     }
   }, [currentResourceId]);
 
@@ -216,25 +202,12 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
         return;
       }
 
-      const sequencesIdx = sequences.findIndex((group) => {
-        const currentResourceIndex = getResourceItemIndex(currentResourceId, resource);
-        return group.includes(currentResourceIndex);
+      return getIdInSequence({
+        currentResourceId,
+        direction,
+        resource,
+        sequences,
       });
-
-      if (direction === 'next' && sequencesIdx === sequences.length - 1) {
-        return;
-      }
-      if (direction === 'prev' && sequencesIdx === 0) {
-        return;
-      }
-
-      try {
-        const sequenceIndex = sequences[direction === 'next' ? sequencesIdx + 1 : sequencesIdx - 1][0];
-        const resourceId = resource.items[sequenceIndex].id;
-        return resourceId;
-      } catch (e) {
-        return '';
-      }
     },
     [resource, sequences]
   );

@@ -1,7 +1,49 @@
-import { Resource } from 'src/types/types';
+import { Resource, Sequences } from 'src/types/types';
 
 type GuardedResource = Resource | undefined;
 type GuardedSequences = number[][] | undefined;
+
+const getIdInSequence = ({
+  currentResourceId,
+  direction,
+  resource,
+  sequences,
+}: {
+  currentResourceId: string;
+  direction: 'next' | 'prev';
+  resource: Resource;
+  sequences: Sequences;
+}) => {
+  const sequencesIdx = sequences.findIndex((group) => {
+    const currentResourceIndex = getResourceItemIndex(currentResourceId, resource);
+    return group.includes(currentResourceIndex);
+  });
+
+  if (direction === 'next' && sequencesIdx === sequences.length - 1) {
+    return;
+  }
+  if (direction === 'prev' && sequencesIdx === 0) {
+    return;
+  }
+
+  try {
+    const sequenceIndex = sequences[direction === 'next' ? sequencesIdx + 1 : sequencesIdx - 1][0];
+    const resourceId = resource.items[sequenceIndex].id;
+    return resourceId;
+  } catch (e) {
+    return '';
+  }
+};
+
+const getResourceItemIndex = (currentResourceId: string, resource: GuardedResource) => {
+  if (!resource || !currentResourceId) {
+    return -1;
+  }
+  const currentResourceIndex = resource.items.findIndex((item) => {
+    return item.id === currentResourceId;
+  });
+  return currentResourceIndex;
+};
 
 const isFirstResourceItem = (currentResourceId: string, resource: GuardedResource): boolean | undefined => {
   if (!resource || !currentResourceId) {
@@ -17,16 +59,6 @@ const isLastResourceItem = (currentResourceId: string, resource: GuardedResource
   }
   const currentResourceIndex = getResourceItemIndex(currentResourceId, resource);
   return currentResourceIndex > -1 ? currentResourceIndex === resource.items.length - 1 : undefined;
-};
-
-const getResourceItemIndex = (currentResourceId: string, resource: GuardedResource) => {
-  if (!resource || !currentResourceId) {
-    return -1;
-  }
-  const currentResourceIndex = resource.items.findIndex((item) => {
-    return item.id === currentResourceId;
-  });
-  return currentResourceIndex;
 };
 
 const mergeOverridesWithResource = ({ resource, overrides }: { resource: GuardedResource; overrides: any }) => {
@@ -46,4 +78,4 @@ const mergeOverridesWithResource = ({ resource, overrides }: { resource: Guarded
   return mergedResource;
 };
 
-export { getResourceItemIndex, isFirstResourceItem, isLastResourceItem, mergeOverridesWithResource };
+export { getIdInSequence, getResourceItemIndex, isFirstResourceItem, isLastResourceItem, mergeOverridesWithResource };
