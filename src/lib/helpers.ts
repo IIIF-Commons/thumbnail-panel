@@ -1,7 +1,11 @@
 import { Resource, Sequences } from 'src/types/types';
 
+import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
+
 type GuardedResource = Resource | undefined;
 type GuardedSequences = number[][] | undefined;
+
+const sequenceHelper = createSequenceHelper();
 
 const getIdInSequence = ({
   currentResourceId,
@@ -33,6 +37,30 @@ const getIdInSequence = ({
   } catch (e) {
     return '';
   }
+};
+
+const getMergedResourceAndSequences = ({
+  resource,
+  overrides,
+}: {
+  resource: Resource | undefined;
+  overrides: Partial<Resource> | undefined;
+}) => {
+  // Merge overrides with the Manifest/Canvas
+  const mergedResource = !overrides
+    ? resource
+    : mergeOverridesWithResource({
+        resource,
+        overrides,
+      });
+
+  // Get updated sequences
+  // @ts-ignore
+  const [, sequences] = sequenceHelper.getManifestSequence(mergedResource, {
+    disablePaging: false,
+  });
+
+  return { mergedResource, sequences };
 };
 
 const getResourceItemIndex = (currentResourceId: string, resource: GuardedResource) => {
@@ -78,4 +106,11 @@ const mergeOverridesWithResource = ({ resource, overrides }: { resource: Guarded
   return mergedResource;
 };
 
-export { getIdInSequence, getResourceItemIndex, isFirstResourceItem, isLastResourceItem, mergeOverridesWithResource };
+export {
+  getIdInSequence,
+  getMergedResourceAndSequences,
+  getResourceItemIndex,
+  isFirstResourceItem,
+  isLastResourceItem,
+  mergeOverridesWithResource,
+};

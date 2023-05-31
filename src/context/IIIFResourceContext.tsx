@@ -1,5 +1,10 @@
 import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
-import { getIdInSequence, isFirstResourceItem, isLastResourceItem, mergeOverridesWithResource } from '../lib/helpers';
+import {
+  getIdInSequence,
+  getMergedResourceAndSequences,
+  isFirstResourceItem,
+  isLastResourceItem,
+} from '../lib/helpers';
 import { Orientation } from 'src/types/options';
 import { Sequences, type OnResourceChanged, type Resource } from 'src/types/types';
 import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
@@ -69,16 +74,9 @@ const sequenceHelper = createSequenceHelper();
 function reducer(state: State, action: Action) {
   switch (action.type) {
     case 'initialize': {
-      // Merge overrides with the Manifest/Canvas
-      const mergedResource = mergeOverridesWithResource({
+      const { mergedResource, sequences } = getMergedResourceAndSequences({
         resource: action.payload.resource,
         overrides: action.payload.overrides,
-      });
-
-      // Get updated sequences
-      // @ts-ignore
-      const [, sequences] = sequenceHelper.getManifestSequence(mergedResource, {
-        disablePaging: false,
       });
 
       return {
@@ -100,14 +98,10 @@ function reducer(state: State, action: Action) {
       };
     }
     case 'updateOverrides': {
-      const mergedResource = mergeOverridesWithResource({
+      console.log('action.overrides', action.overrides);
+      const { mergedResource, sequences } = getMergedResourceAndSequences({
         resource: state.resource,
         overrides: action.overrides,
-      });
-
-      // @ts-ignore
-      const [, sequences] = sequenceHelper.getManifestSequence(mergedResource, {
-        disablePaging: false,
       });
 
       return {
