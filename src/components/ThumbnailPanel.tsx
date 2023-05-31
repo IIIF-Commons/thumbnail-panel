@@ -6,7 +6,6 @@ import Items from './Items';
 import { Orientation } from 'src/types/options';
 import { type OnResourceChanged, type Resource } from 'src/types/types';
 import { fetch } from '@iiif/vault-helpers/fetch';
-import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
 
 interface ThumbnailPanelProps {
   children?: React.ReactNode;
@@ -14,7 +13,7 @@ interface ThumbnailPanelProps {
   iiifContent: string;
   onLoad?: (resource: any) => void;
   onResourceChanged?: OnResourceChanged;
-  orientation: Orientation;
+  orientation?: Orientation;
   overrides?: Partial<Resource>;
 }
 
@@ -47,25 +46,17 @@ export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
 
     fetch(iiifContent, { signal: controller.signal })
       .then((json) => {
-        // Create sequences to help group resource items
-        const sequence = createSequenceHelper();
-        // @ts-ignore
-        const [, sequences] = sequence.getManifestSequence(json, {
-          disablePaging: false,
-        });
-
         // Update Context with ThumbnailPanel config props
         dispatch({
           type: 'initialize',
           payload: {
-            currentResourceId,
+            currentResourceId: currentResourceId || '',
             isControlled: !!currentResourceId,
             isLoaded: true,
             onResourceChanged,
             resource: json,
             orientation,
             overrides,
-            sequences,
           },
         });
         if (onLoad) {

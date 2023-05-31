@@ -29,4 +29,21 @@ const getResourceItemIndex = (currentResourceId: string, resource: GuardedResour
   return currentResourceIndex;
 };
 
-export { getResourceItemIndex, isFirstResourceItem, isLastResourceItem };
+const mergeOverridesWithResource = ({ resource, overrides }: { resource: GuardedResource; overrides: any }) => {
+  let mergedResource = resource;
+
+  if (!resource) {
+    return;
+  }
+  if (!overrides) {
+    return resource;
+  }
+
+  if (overrides && resource) {
+    const values = Object.fromEntries(Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined'));
+    mergedResource = Object.assign({}, resource, values || {});
+  }
+  return mergedResource;
+};
+
+export { getResourceItemIndex, isFirstResourceItem, isLastResourceItem, mergeOverridesWithResource };

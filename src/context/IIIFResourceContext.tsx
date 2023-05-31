@@ -1,17 +1,22 @@
-import React, { ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
-import { getResourceItemIndex, isFirstResourceItem, isLastResourceItem } from '../lib/helpers';
+import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
+import {
+  getResourceItemIndex,
+  isFirstResourceItem,
+  isLastResourceItem,
+  mergeOverridesWithResource,
+} from '../lib/helpers';
 import { Orientation } from 'src/types/options';
-import { type OnResourceChanged, type Resource } from 'src/types/types';
+import { Sequences, type OnResourceChanged, type Resource } from 'src/types/types';
+import { createSequenceHelper } from '@iiif/vault-helpers/sequences';
+
+type GetNavIdArgs = {
+  currentResourceId: string;
+  direction: 'next' | 'prev';
+};
 
 export interface IIIFContentContext {
-  currentResourceId?: string;
-  getNavId?: ({
-    currentResourceId,
-    direction,
-  }: {
-    currentResourceId: string;
-    direction: 'next' | 'prev';
-  }) => string | undefined;
+  currentResourceId: string;
+  getNavId?: ({ currentResourceId, direction }: GetNavIdArgs) => string | undefined;
   isControlled?: boolean;
   isEnd?: boolean;
   isLoaded?: boolean;
@@ -25,15 +30,15 @@ export interface IIIFContentContext {
     handlePrevClick: () => void;
   };
   onResourceChanged?: OnResourceChanged;
-  orientation?: Orientation;
+  orientation: Orientation;
   overrides?: Partial<Resource>;
   resource?: Resource | undefined;
-  sequences?: number[][];
+  sequences?: Sequences;
 }
 type Action =
   | {
       type: 'initialize';
-      payload: Partial<IIIFContentContext>;
+      payload: IIIFContentContext;
     }
   | {
       type: 'updateCurrentId';
@@ -46,27 +51,14 @@ type Action =
   | {
       type: 'updateOverrides';
       overrides: Partial<Resource>;
-    }
-  | {
-      type: 'updateSequences';
-      sequences: number[][];
     };
 type Dispatch = (action: Action) => void;
 type State = IIIFContentContext;
 
 export interface IIIFContentProviderProps {
   children: ReactNode;
-  initialState?: Partial<IIIFContentContext>;
+  initialState?: IIIFContentContext;
 }
-
-const defaultState: IIIFContentContext = {
-  currentResourceId: '',
-  isEnd: false,
-  isLoaded: false,
-  isStart: true,
-  orientation: 'vertical',
-  sequences: [],
-};
 
 const ReactContext = createContext<
   | {
@@ -76,11 +68,29 @@ const ReactContext = createContext<
   | undefined
 >(undefined);
 
+const sequenceHelper = createSequenceHelper();
+
 /** Handle updates to Context state here */
 function reducer(state: State, action: Action) {
   switch (action.type) {
     case 'initialize': {
-      return action.payload;
+      // Merge overrides with the Manifest/Canvas
+      const mergedResource = mergeOverridesWithResource({
+        resource: action.payload.resource,
+        overrides: action.payload.overrides,
+      });
+
+      // Get updated sequences
+      // @ts-ignore
+      const [, sequences] = sequenceHelper.getManifestSequence(mergedResource, {
+        disablePaging: false,
+      });
+
+      return {
+        ...action.payload,
+        resource: mergedResource,
+        sequences,
+      };
     }
     case 'updateCurrentId': {
       return {
@@ -95,15 +105,21 @@ function reducer(state: State, action: Action) {
       };
     }
     case 'updateOverrides': {
+      const mergedResource = mergeOverridesWithResource({
+        resource: state.resource,
+        overrides: action.overrides,
+      });
+
+      // @ts-ignore
+      const [, sequences] = sequenceHelper.getManifestSequence(mergedResource, {
+        disablePaging: false,
+      });
+
       return {
         ...state,
         overrides: { ...action.overrides },
-      };
-    }
-    case 'updateSequences': {
-      return {
-        ...state,
-        sequences: action.sequences,
+        resource: mergedResource,
+        sequences,
       };
     }
     default: {
@@ -112,25 +128,17 @@ function reducer(state: State, action: Action) {
   }
 }
 
+const defaultState: IIIFContentContext = {
+  currentResourceId: '',
+  isEnd: false,
+  isLoaded: false,
+  isStart: true,
+  orientation: 'vertical',
+};
+
 function IIIFContentProvider({ initialState = defaultState, children }: IIIFContentProviderProps) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
   const { currentResourceId, isControlled, onResourceChanged, overrides, resource, sequences } = state;
-
-  // const mergedResource = useMemo(() => {
-  //   if (!overrides || !resource) {
-  //     return resource;
-  //   }
-
-  //   const values = Object.fromEntries(Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined'));
-
-  //   return Object.assign({}, resource, values || {});
-  // }, [resource, ...Object.values(overrides || {})]);
-
-  let mergedResource = resource;
-  if (overrides && resource) {
-    const values = Object.fromEntries(Object.entries(overrides).filter(([, value]) => typeof value !== 'undefined'));
-    mergedResource = Object.assign({}, resource, values || {});
-  }
 
   useEffect(() => {
     if (resource && !isControlled) {
@@ -203,7 +211,7 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
   };
 
   const getNavId = useCallback(
-    ({ currentResourceId, direction }: { currentResourceId?: string; direction: 'next' | 'prev' }) => {
+    ({ currentResourceId, direction }: GetNavIdArgs) => {
       if (!currentResourceId || !resource || !sequences) {
         return;
       }
@@ -252,7 +260,6 @@ function IIIFContentProvider({ initialState = defaultState, children }: IIIFCont
         }),
         handlePrevClick: prev,
       },
-      resource: mergedResource,
     },
     dispatch,
   };
