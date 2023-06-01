@@ -13,6 +13,9 @@
     ".": {
       "import": "./dist/bundle/esm/index.mjs",
       "require": "./dist/bundle/cjs/index.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css"
     }
   },
   "typesVersions": {
