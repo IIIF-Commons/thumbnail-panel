@@ -46,7 +46,6 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ item, onClick }) => {
         <figure>
           <div
             style={{
-              backgroundColor: '#f0f0f0',
               width: `${thumbnailSize}px`,
               height: `${thumbnailSize}px`,
               objectFit: 'contain',
