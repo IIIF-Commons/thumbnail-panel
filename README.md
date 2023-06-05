@@ -1,6 +1,12 @@
 # Thumbnail panel
 
-[Demo](https://thumbnail-panel.netlify.app/) | [Code Sandbox](https://codesandbox.io/dashboard/repositories/github/IIIF-Commons/thumbnail-panel)
+[Demo](https://thumbnail-panel.netlify.app/)
+
+The `@iiif/thumbnail-panel` component is designed for implementations in consuming applications where a user can provide pressable thumbnails representing the Canvas `items` of a Manifest. This component is intended to complement a canvas component such as OpenSeadragon, Canvas Panel, or an HTML5 video element. The thumbnail-panel is designed to interpret CLIENT requirements of the Manifest and Canvas layout `behavior` (or `viewingHint`) and `viewingDirection` properties according the [IIIF Presentation 3.0 API specification](https://iiif.io/api/presentation/3.0/).
+
+### [View Documentation](https://iiif-commons.netlify.app/docs/thumbnail-panel/overview)
+
+## Installation
 
 ```bash
 npm i @iiif/thumbnail-panel
@@ -15,84 +21,9 @@ yarn install
 yarn start
 ```
 
-A consuming environment for developing is available via the `src/dev.tsx` component.
+## Development Code Sandbox
 
-## Usage
-
-The app will export React components, and also a vanilla JavaScript bundled version (coming soon).
-
-### Vanilla JavaScript
-
-### React
-
-The `ThumbnailPanel` component can be used in a _controlled_ or _uncontrolled_ way. [What is controlled vs uncontrolled?](https://react.dev/learn/sharing-state-between-components#controlled-and-uncontrolled-components).
-
-#### Controlled
-
-```tsx
-import { ThumbnailPanel } from "@iiif/thumbnail-panel";
-
-// Somewhere here you'll have to keep track of which
-// "resource" is "active".  Handle user events and
-// continually pass in whichever resourceId you want
-// to be active.
-
-...
-<ThumbnailPanel
-    currentResourceId="someResourceId"
-    iiifContent="https://iiif-commons.github.io/fixtures/examples/thumbnail_panel/non_paged_at_end/v2/manifest.json"
-    onResourceChanged={(resourceId?: string) => {
-        console.log("resourceId", resourceId);
-        // Now you can pass around the current thumbnail item to
-        // other parts of your app which need to know about it.
-    }}
-    orientation="vertical"
-/>
-
-```
-
-#### Uncontrolled
-
-```tsx
-import { ThumbnailPanel } from "@iiif/thumbnail-panel";
-
-function MyApp() {
-    ...
-
-    return (
-        <ThumbnailPanel
-            iiifContent="https://iiif-commons.github.io/fixtures/examples/thumbnail_panel/non_paged_at_end/v2/manifest.json"
-            onResourceChanged={(resourceId?: string) => console.log("resourceId", resourceId)}
-            orientation="vertical"
-        >
-            <Nav />
-        </ThumbnailPanel>
-    )
-}
-
-function Nav() {
-    const { isEnd, isStart, next, prev } = useThumbnailPanelContext();
-
-    const { handleNextClick, resourceId: nextResourceId } = next;
-    const { handlePrevClick, resourceId: prevResourceId } = prev;
-
-    return (
-        <>
-            <button onClick={handlePrevClick} disabled={isStart} data-id={prevResourceId}>
-                Prev
-            </button>
-            <button onClick={handleNextClick} disabled={isEnd} data-id={nextResourceId}>
-                Next
-            </button>
-        </>
-    );
-}
-
-```
-
-#### useThumbnailPanelContext()
-
-Helper hook, details coming soon...
+[Development Code Sandbox](https://codesandbox.io/dashboard/repositories/github/IIIF-Commons/thumbnail-panel)
 
 ## Publishing
 
