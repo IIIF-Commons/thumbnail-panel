@@ -1,10 +1,8 @@
 # Thumbnail panel
 
-[Demo](https://thumbnail-panel.netlify.app/)
+### [View Documentation](https://iiif-commons.netlify.app/docs/thumbnail-panel/overview) | [View Demo](https://thumbnail-panel.netlify.app/)
 
 The `@iiif/thumbnail-panel` component is designed for implementations in consuming applications where a user can provide pressable thumbnails representing the Canvas `items` of a Manifest. This component is intended to complement a canvas component such as OpenSeadragon, Canvas Panel, or an HTML5 video element. The thumbnail-panel is designed to interpret CLIENT requirements of the Manifest and Canvas layout `behavior` (or `viewingHint`) and `viewingDirection` properties according the [IIIF Presentation 3.0 API specification](https://iiif.io/api/presentation/3.0/).
-
-### [View Documentation](https://iiif-commons.netlify.app/docs/thumbnail-panel/overview)
 
 ## Installation
 
