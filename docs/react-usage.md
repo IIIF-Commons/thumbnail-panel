@@ -49,7 +49,7 @@ const { isEnd, isStart, next, prev } = useThumbnailPanelContext();
 ## Example
 
 ```tsx
-import { IIIFContentProvider, ThumbnailPanel } from "@iiif/thumbnail-panel";
+import { IIIFContentProvider, ThumbnailPanel, useThumbnailPanelContext } from '@iiif/thumbnail-panel';
 
 function MyApp() {
   return (
@@ -71,18 +71,10 @@ function Controls() {
 
   return (
     <>
-      <button
-        onClick={handlePrevClick}
-        disabled={isStart}
-        data-id={prevResourceId}
-      >
+      <button onClick={handlePrevClick} disabled={isStart} data-id={prevResourceId}>
         Prev
       </button>
-      <button
-        onClick={handleNextClick}
-        disabled={isEnd}
-        data-id={nextResourceId}
-      >
+      <button onClick={handleNextClick} disabled={isEnd} data-id={nextResourceId}>
         Next
       </button>
     </>
